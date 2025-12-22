@@ -5,8 +5,88 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mission Arbitres - Ligue de Tir Languedoc Roussillon</title>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
+// ===== ADMIN LOCK =====
+const ADMIN_PIN = "1234";
+let ADMIN_UNLOCKED = false;
+
+function adminLogin(){
+  const pin = prompt("Code admin :");
+  if(pin === ADMIN_PIN){
+    ADMIN_UNLOCKED = true;
+    updateAdminUI();
+  } else {
+    alert("Code incorrect");
+  }
+}
+
+function adminLogout(){
+  ADMIN_UNLOCKED = false;
+  updateAdminUI();
+  switchTab({preventDefault:()=>{}}, 'formulaire');
+}
+
+function updateAdminUI(){
+  const tab = document.querySelector('[data-admin="true"]');
+  const panel = document.getElementById('config');
+  const openBtn = document.getElementById('adminLink');
+  const closeBtn = document.getElementById('adminClose');
+
+  if(ADMIN_UNLOCKED){
+    if(tab) tab.style.display = '';
+    if(panel) panel.style.display = 'block';
+    if(openBtn) openBtn.style.display = 'none';
+    if(closeBtn) closeBtn.style.display = '';
+  } else {
+    if(tab) tab.style.display = 'none';
+    if(panel) panel.style.display = 'none';
+    if(openBtn) openBtn.style.display = '';
+    if(closeBtn) closeBtn.style.display = 'none';
+  }
+}
+
+</script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+// ===== ADMIN LOCK =====
+const ADMIN_PIN = "1234";
+let ADMIN_UNLOCKED = false;
+
+function adminLogin(){
+  const pin = prompt("Code admin :");
+  if(pin === ADMIN_PIN){
+    ADMIN_UNLOCKED = true;
+    updateAdminUI();
+  } else {
+    alert("Code incorrect");
+  }
+}
+
+function adminLogout(){
+  ADMIN_UNLOCKED = false;
+  updateAdminUI();
+  switchTab({preventDefault:()=>{}}, 'formulaire');
+}
+
+function updateAdminUI(){
+  const tab = document.querySelector('[data-admin="true"]');
+  const panel = document.getElementById('config');
+  const openBtn = document.getElementById('adminLink');
+  const closeBtn = document.getElementById('adminClose');
+
+  if(ADMIN_UNLOCKED){
+    if(tab) tab.style.display = '';
+    if(panel) panel.style.display = 'block';
+    if(openBtn) openBtn.style.display = 'none';
+    if(closeBtn) closeBtn.style.display = '';
+  } else {
+    if(tab) tab.style.display = 'none';
+    if(panel) panel.style.display = 'none';
+    if(openBtn) openBtn.style.display = '';
+    if(closeBtn) closeBtn.style.display = 'none';
+  }
+}
+
+</script>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -227,10 +307,16 @@
     </div>
 
     <div class="main-content">
-      <div class="tabs">
+      
+<div class="admin-bar" style="margin-bottom:10px;text-align:right;">
+  <a href="#" id="adminLink" onclick="adminLogin();return false;">🔒 Admin</a>
+  <a href="#" id="adminClose" style="display:none;margin-left:10px;" onclick="adminLogout();return false;">🔓 Fermer admin</a>
+</div>
+
+<div class="tabs">
         <button class="tab active" onclick="switchTab(event,'formulaire')">📝 Nouveau Formulaire</button>
         <button class="tab" onclick="switchTab(event,'historique')">📊 Historique</button>
-        <button class="tab" onclick="switchTab(event,'config')">⚙️ Configuration Email</button>
+        <button class="tab" onclick="switchTab(event,'config')" data-admin="true" style="display:none">⚙️ Configuration Email</button>
       </div>
 
       <!-- Onglet Formulaire -->
@@ -430,7 +516,7 @@
       </div>
 
       <!-- Onglet Configuration -->
-      <div id="config" class="tab-content">
+      <div id="config" class="tab-content" style="display:none">
         <h3 style="margin-bottom: 20px;">⚙️ Configuration EmailJS</h3>
 
         <div class="config-box">
@@ -938,6 +1024,46 @@ window.calculateTotal = calculateTotal;
       calculateTotal();
 
           });
-  </script>
+  
+// ===== ADMIN LOCK =====
+const ADMIN_PIN = "1234";
+let ADMIN_UNLOCKED = false;
+
+function adminLogin(){
+  const pin = prompt("Code admin :");
+  if(pin === ADMIN_PIN){
+    ADMIN_UNLOCKED = true;
+    updateAdminUI();
+  } else {
+    alert("Code incorrect");
+  }
+}
+
+function adminLogout(){
+  ADMIN_UNLOCKED = false;
+  updateAdminUI();
+  switchTab({preventDefault:()=>{}}, 'formulaire');
+}
+
+function updateAdminUI(){
+  const tab = document.querySelector('[data-admin="true"]');
+  const panel = document.getElementById('config');
+  const openBtn = document.getElementById('adminLink');
+  const closeBtn = document.getElementById('adminClose');
+
+  if(ADMIN_UNLOCKED){
+    if(tab) tab.style.display = '';
+    if(panel) panel.style.display = 'block';
+    if(openBtn) openBtn.style.display = 'none';
+    if(closeBtn) closeBtn.style.display = '';
+  } else {
+    if(tab) tab.style.display = 'none';
+    if(panel) panel.style.display = 'none';
+    if(openBtn) openBtn.style.display = '';
+    if(closeBtn) closeBtn.style.display = 'none';
+  }
+}
+
+</script>
 </body>
 </html>
