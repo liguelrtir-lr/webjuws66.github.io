@@ -3,96 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mission Arbitres - Ligue de Tir Languedoc Roussillon</title>
+  <title>Mission Bénévoles - Ligue de Tir Languedoc Roussillon</title>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
-// ===== ADMIN LOCK =====
-const ADMIN_PIN = "1234";
-let ADMIN_UNLOCKED = false;
-
-function adminLogin(){
-  const pin = prompt("Code admin :");
-  if(pin === ADMIN_PIN){
-    ADMIN_UNLOCKED = true;
-    updateAdminUI();
-  } else {
-    alert("Code incorrect");
-  }
-}
-
-function adminLogout(){
-  ADMIN_UNLOCKED = false;
-  updateAdminUI();
-  switchTab({preventDefault:()=>{}}, 'formulaire');
-}
-
-function updateAdminUI(){
-  const tab = document.querySelector('[data-admin="true"]');
-  const panel = document.getElementById('config');
-  const openBtn = document.getElementById('adminLink');
-  const closeBtn = document.getElementById('adminClose');
-
-  if(ADMIN_UNLOCKED){
-    if(tab) tab.style.display = '';
-    if(panel) panel.style.display = 'block';
-    if(openBtn) openBtn.style.display = 'none';
-    if(closeBtn) closeBtn.style.display = '';
-  } else {
-    if(tab) tab.style.display = 'none';
-    if(panel) panel.style.display = 'none';
-    if(openBtn) openBtn.style.display = '';
-    if(closeBtn) closeBtn.style.display = 'none';
-  }
-
-      // Toggle Historique tab (admin only)
-      const _tabHist = document.getElementById('tabHistorique');
-      if (_tabHist) {
-        _tabHist.style.display = (ADMIN_UNLOCKED ? '' : 'none');
-      }
-}
-
-</script>
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
-// ===== ADMIN LOCK =====
-const ADMIN_PIN = "1234";
-let ADMIN_UNLOCKED = false;
-
-function adminLogin(){
-  const pin = prompt("Code admin :");
-  if(pin === ADMIN_PIN){
-    ADMIN_UNLOCKED = true;
-    updateAdminUI();
-  } else {
-    alert("Code incorrect");
-  }
-}
-
-function adminLogout(){
-  ADMIN_UNLOCKED = false;
-  updateAdminUI();
-  switchTab({preventDefault:()=>{}}, 'formulaire');
-}
-
-function updateAdminUI(){
-  const tab = document.querySelector('[data-admin="true"]');
-  const panel = document.getElementById('config');
-  const openBtn = document.getElementById('adminLink');
-  const closeBtn = document.getElementById('adminClose');
-
-  if(ADMIN_UNLOCKED){
-    if(tab) tab.style.display = '';
-    if(panel) panel.style.display = 'block';
-    if(openBtn) openBtn.style.display = 'none';
-    if(closeBtn) closeBtn.style.display = '';
-  } else {
-    if(tab) tab.style.display = 'none';
-    if(panel) panel.style.display = 'none';
-    if(openBtn) openBtn.style.display = '';
-    if(closeBtn) closeBtn.style.display = 'none';
-  }
-}
-
-</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -149,6 +63,26 @@ function updateAdminUI(){
 
     .tab-content { display: none; }
     .tab-content.active { display: block; }
+
+    /* Admin lock (Configuration Email) */
+    body:not(.is-admin) .admin-only { display: none !important; }
+    .admin-bar{
+      display:flex;
+      justify-content:flex-end;
+      padding: 0 24px 10px 24px;
+      margin-top: -8px;
+    }
+    .admin-bar a{
+      font-size: 13px;
+      color: #666;
+      text-decoration: none;
+      padding: 6px 10px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+    .admin-bar a:hover{ color:#333; background: rgba(255,255,255,0.9); }
+
 
     .form-group { margin-bottom: 20px; }
 
@@ -308,22 +242,17 @@ function updateAdminUI(){
 <body>
   <div class="container">
     <div class="header">
-      <h1>🎯 Ordre de Mission – Arbitres (repas)</h1>
+      <h1>🎯 Ordre de Mission – Bénévoles</h1>
       <div class="subtitle">Ligue de Tir Languedoc Roussillon</div>
     </div>
 
     <div class="main-content">
-      
-<div class="admin-bar" style="margin-bottom:10px;text-align:right;">
-  <a href="#" id="adminLink" onclick="adminLogin();return false;">🔒 Admin</a>
-  <a href="#" id="adminClose" style="display:none;margin-left:10px;" onclick="adminLogout();return false;">🔓 Fermer admin</a>
-</div>
-
-<div class="tabs">
+      <div class="tabs">
         <button class="tab active" onclick="switchTab(event,'formulaire')">📝 Nouveau Formulaire</button>
         <button class="tab" id="tabHistorique" onclick="switchTab(event,\'historique\')" style="display:none">📊 Historique</button>
-        <button class="tab" onclick="switchTab(event,'config')" data-admin="true" style="display:none">⚙️ Configuration Email</button>
+        <button class="tab admin-only" data-tab="config" onclick="switchTab(event,'config')">⚙️ Configuration Email</button>
       </div>
+      <div class="admin-bar"><a href="#" id="adminLink" onclick="adminLogin();return false;">🔒 Admin</a><a href="#" id="adminClose" style="display:none" onclick="adminLogout();return false;">🔓 Fermer admin</a></div>
 
       <!-- Onglet Formulaire -->
       <div id="formulaire" class="tab-content active">
@@ -334,13 +263,7 @@ function updateAdminUI(){
             <label>Objet de la mission *</label>
             <input type="text" id="objet" required placeholder="Ex: Compétition régionale, Formation arbitrage...">
           </div>
-
-          <div class="form-group">
-            <label>Lieu de la mission *</label>
-            <input type="text" id="lieu" required placeholder="Ex: Nîmes, Montpellier...">
-          </div>
-
-          <div class="form-group">
+<div class="form-group">
             <label>Date de la mission *</label>
             <input type="date" id="dateMission" required>
           </div>
@@ -364,101 +287,25 @@ function updateAdminUI(){
             <input type="text" id="adresse" required placeholder="Adresse complète">
           </div>
 
-          <div class="form-group">
-            <label>Email *</label>
-            <input type="email" id="email" required placeholder="votre.email@example.com">
-          </div>
-
-          
-<h3 style="margin: 30px 0 20px; color: #333;">Indemnités d'arbitrage</h3>
-
-<div class="form-group">
-  <label>Jours de présence en compétition *</label>
-  <small style="color:#666;font-size:12px; display:block; margin-top:-4px;">
-    Choisissez pour chaque jour : <strong>Sans repas (50€)</strong> ou <strong>Avec repas pris en charge (30€)</strong>.
-    Dimanche reste généralement à 50€ (mais vous pouvez aussi choisir 30€ si besoin).
-  </small>
-</div>
-
-<div class="form-row">
-  <div class="form-group">
-    <label>Vendredi</label>
-    <select id="dayFri" oninput="calculateTotal()">
-      <option value="0">Absent</option>
-      <option value="50">Présence sans repas (50€)</option>
-      <option value="30">Présence avec repas (30€)</option>
-    </select>
-  </div>
-
-  <div class="form-group">
-    <label>Samedi</label>
-    <select id="daySat" oninput="calculateTotal()">
-      <option value="0">Absent</option>
-      <option value="50">Présence sans repas (50€)</option>
-      <option value="30">Présence avec repas (30€)</option>
-    </select>
-  </div>
-</div>
-
-<div class="form-group">
-  <label>Dimanche</label>
-  <select id="daySun" oninput="calculateTotal()">
-    <option value="0">Absent</option>
-    <option value="50" selected>Présence sans repas (50€)</option>
-    <option value="30">Présence avec repas (30€)</option>
-  </select>
-</div>
-
-<div class="form-group">
-  <div class="form-group-inline">
-    <input type="checkbox" id="jourPreparation" oninput="calculateTotal()">
-    <label for="jourPreparation" style="margin:0;">Journée de préparation (30 €)</label>
-  </div>
-</div>
-
-<h3 style="margin: 30px 0 20px; color: #333;">Frais à rembourser</h3>
+          <h3 style="margin: 30px 0 20px; color: #333;">Présence bénévole</h3>
 
           <div class="form-group">
-            <label>Kilométrage total (en km) *</label>
-            <input type="number" id="km" required placeholder="0" min="0" step="1" oninput="calculateTotal()">
-            <small style="color: #666; font-size: 12px;">Indemnité: 0,40 € / km</small>
-          </div>
-
-          <div class="form-group">
-            <label>Indemnité kilométrique</label>
-            <input type="text" id="indemniteKm" class="calculated-field" readonly placeholder="0,00 €">
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>Hôtel (€)</label>
-              <input type="number" id="hotel" placeholder="0.00" min="0" step="0.01" value="0" oninput="calculateTotal()">
-            </div>
-
-            <div class="form-group">
-              <label>Restaurant (€)</label>
-              <input type="number" id="restaurant" placeholder="0.00" min="0" step="0.01" value="0" oninput="calculateTotal()">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Péages Autoroute (€)</label>
-            <input type="number" id="peages" placeholder="0.00" min="0" step="0.01" value="0" oninput="calculateTotal()">
-          </div>
-
-          <div class="form-group">
-            <div class="form-group-inline">
-              <input type="checkbox" id="covoiturage">
-              <label for="covoiturage" style="margin: 0;">Covoiturage</label>
-            </div>
+            <label>Nombre de jours de présence (1 à 3) *</label>
+            <select id="jours" required onchange="calculateTotal()">
+              <option value="1">1 jour</option>
+              <option value="2">2 jours</option>
+              <option value="3">3 jours</option>
+            </select>
+            <small style="color: #666; font-size: 12px;">Indemnité forfaitaire : 30 € / jour (max 3 jours)</small>
           </div>
 
           <div class="total-display">
-            <div class="label">TOTAL À REMBOURSER</div>
-            <div class="amount" id="totalAmount">0,00 €</div>
+            <div class="label">INDEMNITÉ TOTALE</div>
+            <div class="amount" id="totalAmount">30,00 €</div>
           </div>
 
           <h3 style="margin: 30px 0 20px; color: #333;">Signature</h3>
+
 
           <div class="form-group">
             <label>Fait à *</label>
@@ -479,7 +326,7 @@ function updateAdminUI(){
           <div style="margin-top: 15px; padding: 15px; background: #fff3cd; border-radius: 8px; font-size: 13px; color: #856404;">
             <strong>ℹ️ Important :</strong><br>
             • Le PDF se télécharge sur votre ordinateur<br>
-            • Vous enverrez ensuite le PDF à la ligue avec vos justificatifs (hôtel, péages, repas...)
+            • Vous enverrez ensuite le PDF à la ligue pour le paiement 
           </div>
         </form>
 
@@ -522,7 +369,7 @@ function updateAdminUI(){
       </div>
 
       <!-- Onglet Configuration -->
-      <div id="config" class="tab-content" style="display:none">
+      <div id="config" class="tab-content">
         <h3 style="margin-bottom: 20px;">⚙️ Configuration EmailJS</h3>
 
         <div class="config-box">
@@ -589,6 +436,79 @@ function updateAdminUI(){
     initEmailJS();
 
     // ====== LOGO (persisté dans le navigateur) ======
+    function isAdmin() {
+      return localStorage.getItem('om_admin') === '1';
+    }
+
+    // IMPORTANT: change this code before publishing (keep it for you only)
+    const ADMIN_PIN = "1234";
+
+    function updateAdminUI() {
+      document.body.classList.toggle('is-admin', isAdmin());
+
+      // Toggle admin buttons
+      const _adminLink = document.getElementById('adminLink');
+      const _adminClose = document.getElementById('adminClose');
+      if (_adminLink && _adminClose) {
+        if (isAdmin()) {
+          _adminLink.style.display = 'none';
+          _adminClose.style.display = 'inline-block';
+        } else {
+          _adminLink.style.display = 'inline-block';
+          _adminClose.style.display = 'none';
+        }
+      }
+
+      // Toggle Historique tab (admin only)
+      const _tabHist = document.getElementById('tabHistorique');
+      if (_tabHist) {
+        _tabHist.style.display = (isAdmin() ? '' : 'none');
+      }
+
+      // If user logs out while on Historique, return to formulaire
+      if (!isAdmin()) {
+        const histPanel = document.getElementById('historique');
+        if (histPanel && histPanel.classList.contains('active') && typeof switchTab === 'function') {
+          switchTab(null, 'formulaire');
+        }
+      }
+    }
+// If not admin and config is open, return to formulaire
+      if (!isAdmin()) {
+        const activeTabBtn = document.querySelector('.tab.active');
+        if (activeTabBtn && activeTabBtn.dataset && activeTabBtn.dataset.tab === 'config') {
+          // nothing
+        }
+        const activeContent = document.querySelector('.tab-content.active');
+        if (activeContent && activeContent.id === 'config') {
+          // fallback to formulaire
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          const firstBtn = document.querySelector('.tab[onclick*="formulaire"]');
+          if (firstBtn) firstBtn.classList.add('active');
+          const firstContent = document.getElementById('formulaire');
+          if (firstContent) firstContent.classList.add('active');
+        }
+      }
+    }
+
+    function adminLogin() {
+      const pin = prompt("Accès admin — code requis :");
+      if (pin === null) return;
+      if (pin === ADMIN_PIN) {
+        localStorage.setItem('om_admin', '1');
+        updateAdminUI();
+        alert("Mode admin activé sur cet appareil.");
+      } else {
+        alert("Code incorrect.");
+      }
+    }
+
+    function adminLogout() {
+      localStorage.removeItem('om_admin');
+      updateAdminUI();
+    }
+
     function switchTab(e, tabName) {
       
       // Block historique for non-admins
@@ -596,7 +516,14 @@ function updateAdminUI(){
         adminLogin();
         if (!ADMIN_UNLOCKED) { return; }
       }
-document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+// Block config for non-admins
+      if (tabName === 'config' && !isAdmin()) {
+        adminLogin();
+        // if still not admin, stay on current tab
+        if (!isAdmin()) return;
+      }
+
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
       e.currentTarget.classList.add('active');
@@ -609,33 +536,14 @@ document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'))
     window.regeneratePDF = regeneratePDF;
 
     // ====== Calcul total ======
-    function calculateTotal(){
-  const km = parseFloat(document.getElementById("km")?.value) || 0;
-  const hotel = parseFloat(document.getElementById("hotel")?.value) || 0;
-  const restaurant = parseFloat(document.getElementById("restaurant")?.value) || 0;
-  const peages = parseFloat(document.getElementById("peages")?.value) || 0;
+    function calculateTotal() {
+      const jours = Math.max(1, Math.min(3, parseInt(document.getElementById('jours')?.value || '1', 10) || 1));
+      const total = jours * 30;
 
-  // Jours présence (0 / 30 / 50)
-  const dayFri = parseFloat(document.getElementById("dayFri")?.value) || 0;
-  const daySat = parseFloat(document.getElementById("daySat")?.value) || 0;
-  const daySun = parseFloat(document.getElementById("daySun")?.value) || 0;
-
-  const prep = document.getElementById("jourPreparation")?.checked ? 30 : 0;
-
-  const indemniteKm = km * 0.40;
-  const indemniteCompetition = dayFri + daySat + daySun;
-
-  const total = indemniteKm + indemniteCompetition + prep + hotel + restaurant + peages;
-
-  const totalEl = document.getElementById("totalAmount");
-  if (totalEl) totalEl.textContent = total.toFixed(2).replace('.', ',') + " €";
-
-  const kmEl = document.getElementById("indemniteKm");
-  if (kmEl) kmEl.value = indemniteKm.toFixed(2).replace('.', ',') + " €";
-
-  return total;
-}
-window.calculateTotal = calculateTotal;
+      document.getElementById('totalAmount').textContent = total.toFixed(2) + ' €';
+      return total;
+    }
+    window.calculateTotal = calculateTotal;
 
     // ====== PDF ======
     function generatePDF(data) {
@@ -684,8 +592,8 @@ window.calculateTotal = calculateTotal;
       doc.setFont(undefined, 'normal'); doc.text(String(data.objet || ''), 60, y);
 
       y += 7;
-      doc.setFont(undefined, 'bold'); doc.text('Lieu :', 20, y);
-      doc.setFont(undefined, 'normal'); doc.text(String(data.lieu || ''), 60, y);
+      doc.setFont(undefined, 'bold'); doc.text('Adresse :', 20, y);
+      doc.setFont(undefined, 'normal'); doc.text(String(data.adresse || ''), 60, y);
 
       y += 7;
       doc.setFont(undefined, 'bold'); doc.text('Date :', 20, y);
@@ -716,40 +624,6 @@ window.calculateTotal = calculateTotal;
       doc.setFont(undefined, 'bold'); doc.text('Email :', 20, y);
       doc.setFont(undefined, 'normal'); doc.text(String(data.email || ''), 60, y);
 
-
-      // Section Indemnités d'arbitrage
-      y += 15;
-      doc.setFillColor(245, 247, 250);
-      doc.rect(15, y - 5, 180, 35, 'F');
-
-      doc.setFontSize(13);
-      doc.setFont(undefined, 'bold');
-      doc.setTextColor(102, 126, 234);
-      doc.text("INDEMNITÉS D'ARBITRAGE", 20, y);
-
-      y += 8;
-      doc.setFontSize(10);
-      doc.setTextColor(0, 0, 0);
-      doc.setFont(undefined, 'bold'); doc.text('Vendredi :', 20, y);
-      doc.setFont(undefined, 'normal'); doc.text(String(data.dayFri || ''), 60, y);
-
-      y += 7;
-      doc.setFont(undefined, 'bold'); doc.text('Samedi :', 20, y);
-      doc.setFont(undefined, 'normal'); doc.text(String(data.daySat || ''), 60, y);
-
-      y += 7;
-      doc.setFont(undefined, 'bold'); doc.text('Dimanche :', 20, y);
-      doc.setFont(undefined, 'normal'); doc.text(String(data.daySun || ''), 60, y);
-
-      y += 7;
-      doc.setFont(undefined, 'bold'); doc.text('Préparation :', 20, y);
-      doc.setFont(undefined, 'normal'); doc.text((data.jourPreparation || 'Non') === 'Oui' ? 'Oui (30€)' : 'Non', 60, y);
-
-      y += 7;
-      doc.setFont(undefined, 'bold'); doc.text('Total indemnités :', 20, y);
-      doc.setFont(undefined, 'normal'); doc.text((data.indemniteArbitrage || '0.00') + ' €', 60, y);
-
-
       // Section Frais
       y += 15;
       doc.setFontSize(13);
@@ -773,12 +647,9 @@ window.calculateTotal = calculateTotal;
       doc.setFont(undefined, 'normal');
 
       const rows = [
-        ['Kilométrage', (data.km || '0') + ' km × 0,40 €', (data.indemniteKm || '0.00') + ' €'],
-        ['Hôtel', '', (data.hotel || '0') + ' €'],
-        ['Restaurant', '', (data.restaurant || '0') + ' €'],
-        ['Péages', '', (data.peages || '0') + ' €'],
-        ['Covoiturage', (data.covoiturage || 'Non'), '']
-      ];
+        ['Indemnité bénévoles', '30 € × ' + (data.jours || '1') + ' jour(s)', (data.total || '0.00') + ' €']
+      ]
+;
 
       rows.forEach((row, i) => {
         if (i % 2 === 0) {
@@ -840,29 +711,19 @@ window.calculateTotal = calculateTotal;
 
       const formData = {
         objet: document.getElementById('objet').value,
-        lieu: document.getElementById('lieu').value,
+        lieu: '', // non utilisé pour les bénévoles
         dateMission: document.getElementById('dateMission').value,
         nom: document.getElementById('nom').value,
         prenom: document.getElementById('prenom').value,
         adresse: document.getElementById('adresse').value,
-        email: document.getElementById('email').value,
-        // Jours présence / repas
-        dayFri: document.getElementById('dayFri')?.options[document.getElementById('dayFri').selectedIndex]?.text || '',
-        daySat: document.getElementById('daySat')?.options[document.getElementById('daySat').selectedIndex]?.text || '',
-        daySun: document.getElementById('daySun')?.options[document.getElementById('daySun').selectedIndex]?.text || '',
-        jourPreparation: document.getElementById('jourPreparation').checked ? 'Oui' : 'Non',
-        indemniteArbitrage: (
-          (parseFloat(document.getElementById('dayFri')?.value) || 0) +
-          (parseFloat(document.getElementById('daySat')?.value) || 0) +
-          (parseFloat(document.getElementById('daySun')?.value) || 0) +
-          (document.getElementById('jourPreparation').checked ? 30 : 0)
-        ).toFixed(2),
-        km: document.getElementById('km').value,
-        hotel: document.getElementById('hotel').value || '0',
-        restaurant: document.getElementById('restaurant').value || '0',
-        peages: document.getElementById('peages').value || '0',
-        covoiturage: document.getElementById('covoiturage').checked ? 'Oui' : 'Non',
-        indemniteKm: ((parseFloat(document.getElementById('km').value) || 0) * 0.40).toFixed(2),
+        email: (config.emailLigue || 'webjuws66@gmail.com'), // notification (pas de champ email sur ce formulaire)
+        jours: document.getElementById('jours').value,
+        km: '0',
+        hotel: '0',
+        restaurant: '0',
+        peages: '0',
+        covoiturage: 'Non',
+        indemniteKm: '0.00',
         total: (totalValue || 0).toFixed(2),
         faitA: document.getElementById('faitA').value,
         dateComplete: new Date().toLocaleDateString('fr-FR')
@@ -1037,45 +898,8 @@ window.calculateTotal = calculateTotal;
 
           });
   
-// ===== ADMIN LOCK =====
-const ADMIN_PIN = "1234";
-let ADMIN_UNLOCKED = false;
-
-function adminLogin(){
-  const pin = prompt("Code admin :");
-  if(pin === ADMIN_PIN){
-    ADMIN_UNLOCKED = true;
+    // Init admin UI
     updateAdminUI();
-  } else {
-    alert("Code incorrect");
-  }
-}
-
-function adminLogout(){
-  ADMIN_UNLOCKED = false;
-  updateAdminUI();
-  switchTab({preventDefault:()=>{}}, 'formulaire');
-}
-
-function updateAdminUI(){
-  const tab = document.querySelector('[data-admin="true"]');
-  const panel = document.getElementById('config');
-  const openBtn = document.getElementById('adminLink');
-  const closeBtn = document.getElementById('adminClose');
-
-  if(ADMIN_UNLOCKED){
-    if(tab) tab.style.display = '';
-    if(panel) panel.style.display = 'block';
-    if(openBtn) openBtn.style.display = 'none';
-    if(closeBtn) closeBtn.style.display = '';
-  } else {
-    if(tab) tab.style.display = 'none';
-    if(panel) panel.style.display = 'none';
-    if(openBtn) openBtn.style.display = '';
-    if(closeBtn) closeBtn.style.display = 'none';
-  }
-}
-
 </script>
 </body>
 </html>

@@ -7,7 +7,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
 // ===== ADMIN LOCK =====
-const ADMIN_PIN = "2409"; // A CHANGER
+const ADMIN_PIN = "1234"; // A CHANGER
 let ADMIN_UNLOCKED = false;
 
 function adminLogin(){
@@ -44,12 +44,18 @@ function updateAdminUI(){
     if(openBtn) openBtn.style.display = '';
     if(closeBtn) closeBtn.style.display = 'none';
   }
+
+      // Toggle Historique tab (admin only)
+      const _tabHist = document.getElementById('tabHistorique');
+      if (_tabHist) {
+        _tabHist.style.display = (ADMIN_UNLOCKED ? '' : 'none');
+      }
 }
 
 </script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
 // ===== ADMIN LOCK =====
-const ADMIN_PIN = "2409"; // A CHANGER
+const ADMIN_PIN = "1234"; // A CHANGER
 let ADMIN_UNLOCKED = false;
 
 function adminLogin(){
@@ -317,7 +323,7 @@ function updateAdminUI(){
 
 <div class="tabs">
         <button class="tab active" onclick="switchTab(event,'formulaire')">📝 Nouveau Formulaire</button>
-        <button class="tab" onclick="switchTab(event,'historique')">📊 Historique</button>
+        <button class="tab" id="tabHistorique" onclick="switchTab(event,\'historique\')" style="display:none">📊 Historique</button>
         <button class="tab" onclick="switchTab(event,'config')" data-admin="true" style="display:none">⚙️ Configuration Email</button>
       </div>
 
@@ -539,7 +545,13 @@ function updateAdminUI(){
 
     // ====== LOGO (persisté dans le navigateur) ======
     function switchTab(e, tabName) {
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      
+      // Block historique for non-admins
+      if (tabName === 'historique' && !ADMIN_UNLOCKED) {
+        adminLogin();
+        if (!ADMIN_UNLOCKED) { return; }
+      }
+document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
       e.currentTarget.classList.add('active');
@@ -923,7 +935,7 @@ function updateAdminUI(){
           });
   
 // ===== ADMIN LOCK =====
-const ADMIN_PIN = "2409"; // 
+const ADMIN_PIN = "1234"; // A CHANGER
 let ADMIN_UNLOCKED = false;
 
 function adminLogin(){
