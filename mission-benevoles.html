@@ -64,6 +64,26 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
+    /* Admin lock (Configuration Email) */
+    body:not(.is-admin) .admin-only { display: none !important; }
+    .admin-bar{
+      display:flex;
+      justify-content:flex-end;
+      padding: 0 24px 10px 24px;
+      margin-top: -8px;
+    }
+    .admin-bar a{
+      font-size: 13px;
+      color: #666;
+      text-decoration: none;
+      padding: 6px 10px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+    .admin-bar a:hover{ color:#333; background: rgba(255,255,255,0.9); }
+
+
     .form-group { margin-bottom: 20px; }
 
     .form-group label {
@@ -230,8 +250,9 @@
       <div class="tabs">
         <button class="tab active" onclick="switchTab(event,'formulaire')">📝 Nouveau Formulaire</button>
         <button class="tab" onclick="switchTab(event,'historique')">📊 Historique</button>
-        <button class="tab" onclick="switchTab(event,'config')">⚙️ Configuration Email</button>
+        <button class="tab admin-only" data-tab="config" onclick="switchTab(event,'config')">⚙️ Configuration Email</button>
       </div>
+      <div class="admin-bar"><a href="#" id="adminLink" onclick="adminLogin();return false;">🔒 Admin</a></div>
 
       <!-- Onglet Formulaire -->
       <div id="formulaire" class="tab-content active">
@@ -348,7 +369,7 @@
       </div>
 
       <!-- Onglet Configuration -->
-      <div id="config" class="tab-content"style="display:none">
+      <div id="config" class="tab-content">
         <h3 style="margin-bottom: 20px;">⚙️ Configuration EmailJS</h3>
 
         <div class="config-box">
@@ -415,7 +436,59 @@
     initEmailJS();
 
     // ====== LOGO (persisté dans le navigateur) ======
+    function isAdmin() {
+      return localStorage.getItem('om_admin') === '1';
+    }
+
+    // IMPORTANT: change this code before publishing (keep it for you only)
+    const ADMIN_PIN = "1234";
+
+    function updateAdminUI() {
+      document.body.classList.toggle('is-admin', isAdmin());
+      // If not admin and config is open, return to formulaire
+      if (!isAdmin()) {
+        const activeTabBtn = document.querySelector('.tab.active');
+        if (activeTabBtn && activeTabBtn.dataset && activeTabBtn.dataset.tab === 'config') {
+          // nothing
+        }
+        const activeContent = document.querySelector('.tab-content.active');
+        if (activeContent && activeContent.id === 'config') {
+          // fallback to formulaire
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          const firstBtn = document.querySelector('.tab[onclick*="formulaire"]');
+          if (firstBtn) firstBtn.classList.add('active');
+          const firstContent = document.getElementById('formulaire');
+          if (firstContent) firstContent.classList.add('active');
+        }
+      }
+    }
+
+    function adminLogin() {
+      const pin = prompt("Accès admin — code requis :");
+      if (pin === null) return;
+      if (pin === ADMIN_PIN) {
+        localStorage.setItem('om_admin', '1');
+        updateAdminUI();
+        alert("Mode admin activé sur cet appareil.");
+      } else {
+        alert("Code incorrect.");
+      }
+    }
+
+    function adminLogout() {
+      localStorage.removeItem('om_admin');
+      updateAdminUI();
+    }
+
     function switchTab(e, tabName) {
+      // Block config for non-admins
+      if (tabName === 'config' && !isAdmin()) {
+        adminLogin();
+        // if still not admin, stay on current tab
+        if (!isAdmin()) return;
+      }
+
       document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
@@ -790,6 +863,9 @@
       calculateTotal();
 
           });
-  </script>
+  
+    // Init admin UI
+    updateAdminUI();
+</script>
 </body>
 </html>
