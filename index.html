@@ -1,136 +1,246 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Ligue de Tir – Missions</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Missions – Ligue de Tir</title>
 
   <style>
-    * {
-      box-sizing: border-box;
+    :root{
+      --blue:#0b4ea2;
+      --blue2:#1e73d8;
+      --bg:#f3f6fb;
+      --text:#0b1b2b;
+      --card:#ffffff;
+      --border: rgba(11,27,43,.18);
+      --shadow: 0 10px 30px rgba(0,0,0,.10);
     }
 
-    body {
-      margin: 0;
+    *{box-sizing:border-box}
+    body{
+      margin:0;
       font-family: "Segoe UI", Arial, sans-serif;
-      color: #ffffff;
-      min-height: 100vh;
-      background:
-        linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
-        url("https://images.unsplash.com/photo-1601933470928-c6c4a4a5f3f5?auto=format&fit=crop&w=1600&q=80");
-      background-size: cover;
-      background-position: center;
-      display: flex;
-      flex-direction: column;
+      color:var(--text);
+      min-height:100vh;
+      background: var(--bg);
     }
 
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 20px 40px;
-      background: rgba(0, 0, 0, 0.35);
-      backdrop-filter: blur(4px);
+    /* ===== OPTION IMAGE DE FOND =====
+       Si tu veux une photo en fond :
+       1) mets une image "fond-tir.jpg" à la racine (ou change le nom ci-dessous)
+       2) décommente le bloc .page-bg
+    */
+    .page-bg{
+      position: fixed;
+      inset: 0;
+      /* Décommente la ligne suivante si tu ajoutes une image en fond :
+      background: url("fond-tir.jpg") center/cover no-repeat;
+      */
+      background: none;
+      z-index: -2;
+    }
+    /* voile clair + léger gris sur le fond */
+    .page-overlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,.78);
+      backdrop-filter: saturate(0.9) grayscale(0.35);
+      z-index: -1;
     }
 
-    header img {
-      height: 90px;
-      max-width: 100%;
+    /* ===== HEADER ===== */
+    header{
+      background: var(--blue);
+      color:#fff;
+      padding: 14px 18px;
+      box-shadow: 0 6px 20px rgba(0,0,0,.18);
+    }
+    .header-inner{
+      max-width: 1100px;
+      margin: 0 auto;
+      display:flex;
+      align-items:center;
+      gap: 14px;
     }
 
-    .title {
-      text-align: center;
-      margin-top: 60px;
+    .logo{
+      height: 64px;
+      width: auto;
+      display:block;
+      object-fit: contain;
+      background: rgba(255,255,255,.08);
+      border-radius: 10px;
+      padding: 6px;
     }
 
-    .title h1 {
-      margin: 0;
-      font-size: 34px;
-      letter-spacing: 1px;
+    .header-title{
+      flex: 1;
+      text-align:center;
+      line-height:1.15;
+      padding: 0 10px;
     }
-
-    .title p {
-      margin-top: 10px;
-      font-size: 18px;
-      opacity: 0.9;
-    }
-
-    .buttons {
-      margin: 60px auto 0;
-      display: flex;
-      gap: 30px;
-      flex-wrap: wrap;
-      justify-content: center;
-      max-width: 900px;
-      padding: 0 20px;
-    }
-
-    .buttons a {
-      text-decoration: none;
-      background: rgba(255,255,255,0.12);
-      border: 2px solid rgba(255,255,255,0.5);
-      color: #ffffff;
-      padding: 28px 40px;
-      border-radius: 14px;
+    .header-title h1{
+      margin:0;
       font-size: 20px;
-      font-weight: 600;
-      width: 260px;
-      text-align: center;
-      transition: all 0.3s ease;
+      letter-spacing: .6px;
+      font-weight: 800;
+      text-transform: uppercase;
     }
-
-    .buttons a:hover {
-      background: #ffffff;
-      color: #000000;
-      transform: translateY(-4px);
-    }
-
-    footer {
-      margin-top: auto;
-      padding: 20px;
-      text-align: center;
+    .header-title .sub{
+      margin-top:6px;
       font-size: 14px;
-      opacity: 0.7;
+      opacity: .92;
+      font-weight: 600;
     }
 
-    @media (max-width: 600px) {
-      header {
+    /* ===== MAIN ===== */
+    main{
+      max-width: 1100px;
+      margin: 34px auto 40px;
+      padding: 0 18px;
+    }
+
+    .panel{
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 26px;
+    }
+
+    .intro{
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    .intro h2{
+      margin:0;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--blue);
+    }
+    .intro p{
+      margin: 8px 0 0;
+      opacity: .9;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .buttons{
+      margin-top: 22px;
+      display:flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      justify-content:center;
+    }
+
+    .btn{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-decoration:none;
+      width: 320px;
+      max-width: 100%;
+      padding: 22px 18px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, var(--blue2), var(--blue));
+      color: #fff;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: .3px;
+      border: 1px solid rgba(255,255,255,.25);
+      box-shadow: 0 10px 18px rgba(11,78,162,.22);
+      transition: transform .18s ease, filter .18s ease;
+    }
+    .btn:hover{
+      transform: translateY(-3px);
+      filter: brightness(1.05);
+    }
+    .btn:active{
+      transform: translateY(0px);
+    }
+
+    .hint{
+      margin-top: 18px;
+      text-align:center;
+      font-size: 13px;
+      opacity: .75;
+    }
+
+    footer{
+      text-align:center;
+      padding: 18px 10px 26px;
+      font-size: 12px;
+      opacity: .65;
+    }
+
+    /* ===== MOBILE ===== */
+    @media (max-width: 640px){
+      .header-inner{
         flex-direction: column;
-        gap: 15px;
+        gap: 10px;
       }
-
-      header img {
-        height: 70px;
+      .header-title{
+        padding: 0;
       }
-
-      .title h1 {
-        font-size: 26px;
+      .header-title h1{
+        font-size: 16px;
+      }
+      .logo{
+        height: 56px;
+      }
+      .btn{
+        width: 100%;
+        font-size: 18px;
+        padding: 20px 16px;
       }
     }
   </style>
 </head>
 
 <body>
+  <div class="page-bg"></div>
+  <div class="page-overlay"></div>
 
   <header>
-    <img src="Unknown.png" alt="Ligue de Tir Languedoc-Roussillon">
-    <img src="748px-FFTir_Logo.svg.png" alt="Fédération Française de Tir">
+    <div class="header-inner">
+      <img class="logo" src="Unknown.png" alt="Logo Ligue de Tir Languedoc-Roussillon">
+      <div class="header-title">
+        <h1>LIGUE DE TIR LANGUEDOC-ROUSSILLON</h1>
+        <div class="sub">Gestion des missions – Génération PDF &amp; envoi EmailJS</div>
+      </div>
+      <img class="logo" src="748px-FFTir_Logo.svg.png" alt="Logo FFTir">
+    </div>
   </header>
 
-  <div class="title">
-    <h1>Gestion des missions</h1>
-    <p>Ligue de Tir Languedoc-Roussillon</p>
-  </div>
+  <main>
+    <div class="panel">
+      <div class="intro">
+        <div>
+          <h2>Choisissez votre formulaire</h2>
+          <p>
+            Sélectionnez le profil correspondant à votre mission. Le formulaire génère un PDF et déclenche l’envoi e-mail selon la configuration.
+          </p>
+        </div>
+      </div>
 
-  <div class="buttons">
-    <a href="mission-benevoles.html">Bénévoles</a>
-    <a href="mission-arbitres-repas.html">Arbitres</a>
-    <a href="mission-comite.html">Comité Directeur</a>
-  </div>
+      <div class="buttons">
+        <a class="btn" href="mission-benevoles.html">Bénévoles</a>
+        <a class="btn" href="mission-arbitres-repas.html">Arbitres</a>
+        <!-- IMPORTANT : majuscule M car ton fichier s'appelle Mission-comite.html -->
+        <a class="btn" href="mission-comite.html">Comité Directeur</a>
+      </div>
+
+      <div class="hint">
+        Astuce : si tu ajoutes une photo en fond, mets-la en <b>fond-tir.jpg</b> à la racine et décommente la ligne dans le CSS.
+      </div>
+    </div>
+  </main>
 
   <footer>
-    © Ligue de Tir Languedoc-Roussillon – FFTir
+    © Ligue de Tir Languedoc-Roussillon — Fédération Française de Tir
   </footer>
-
 </body>
 </html>
