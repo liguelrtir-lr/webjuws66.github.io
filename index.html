@@ -13,7 +13,7 @@
       --text:#0b1b2b;
       --card:#ffffff;
       --border: rgba(11,27,43,.18);
-      --shadow: 0 10px 30px rgba(0,0,0,.10);
+      --shadow: 0 14px 34px rgba(0,0,0,.12);
     }
 
     *{box-sizing:border-box}
@@ -25,114 +25,90 @@
       background: var(--bg);
     }
 
-    /* ===== OPTION IMAGE DE FOND =====
-       Si tu veux une photo en fond :
-       1) mets une image "fond-tir.jpg" à la racine (ou change le nom ci-dessous)
-       2) décommente le bloc .page-bg
-    */
-    .page-bg{
-      position: fixed;
-      inset: 0;
-      /* Décommente la ligne suivante si tu ajoutes une image en fond :
-      background: url("fond-tir.jpg") center/cover no-repeat;
-      */
-      background: none;
-      z-index: -2;
-    }
-    /* voile clair + léger gris sur le fond */
-    .page-overlay{
-      position: fixed;
-      inset: 0;
-      background: rgba(255,255,255,.78);
-      backdrop-filter: saturate(0.9) grayscale(0.35);
-      z-index: -1;
-    }
-
-    /* ===== HEADER ===== */
+    /* ===== HEADER (x2) ===== */
     header{
       background: var(--blue);
       color:#fff;
-      padding: 14px 18px;
-      box-shadow: 0 6px 20px rgba(0,0,0,.18);
+      padding: 26px 28px;             /* + haut */
+      box-shadow: 0 10px 28px rgba(0,0,0,.20);
     }
     .header-inner{
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 0 auto;
       display:flex;
       align-items:center;
-      gap: 14px;
+      gap: 22px;
     }
 
     .logo{
-      height: 64px;
+      height: 120px;                  /* x2 vs avant */
       width: auto;
       display:block;
       object-fit: contain;
-      background: rgba(255,255,255,.08);
-      border-radius: 10px;
-      padding: 6px;
+      background: rgba(255,255,255,.10);
+      border-radius: 16px;
+      padding: 10px;
     }
 
     .header-title{
       flex: 1;
       text-align:center;
-      line-height:1.15;
-      padding: 0 10px;
+      line-height:1.1;
+      padding: 0 12px;
     }
     .header-title h1{
       margin:0;
-      font-size: 20px;
-      letter-spacing: .6px;
-      font-weight: 800;
+      font-size: 34px;                /* x2-ish */
+      letter-spacing: .9px;
+      font-weight: 900;
       text-transform: uppercase;
     }
     .header-title .sub{
-      margin-top:6px;
-      font-size: 14px;
-      opacity: .92;
-      font-weight: 600;
+      margin-top:10px;
+      font-size: 20px;                /* plus gros */
+      opacity: .95;
+      font-weight: 700;
     }
 
     /* ===== MAIN ===== */
     main{
-      max-width: 1100px;
-      margin: 34px auto 40px;
-      padding: 0 18px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 22px;
+    }
+
+    /* Décalage vers le bas (A4/plein écran plus joli) */
+    .spacer-top{
+      height: 110px;                  /* pousse le bloc vers le bas */
     }
 
     .panel{
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 18px;
+      border-radius: 22px;
       box-shadow: var(--shadow);
-      padding: 26px;
+      padding: 34px;
     }
 
-    .intro{
-      display:flex;
-      align-items:flex-start;
-      justify-content: space-between;
-      gap: 18px;
-      margin-bottom: 18px;
-    }
     .intro h2{
       margin:0;
-      font-size: 22px;
-      font-weight: 800;
+      font-size: 28px;                /* un peu + gros */
+      font-weight: 900;
       color: var(--blue);
     }
     .intro p{
-      margin: 8px 0 0;
+      margin: 10px 0 0;
       opacity: .9;
-      font-size: 15px;
-      line-height: 1.4;
+      font-size: 17px;
+      line-height: 1.45;
+      max-width: 920px;
     }
 
     .buttons{
-      margin-top: 22px;
+      margin-top: 30px;
       display:flex;
       flex-wrap: wrap;
-      gap: 18px;
+      gap: 22px;
       justify-content:center;
     }
 
@@ -141,17 +117,17 @@
       align-items:center;
       justify-content:center;
       text-decoration:none;
-      width: 320px;
+      width: 360px;                   /* + gros */
       max-width: 100%;
-      padding: 22px 18px;
-      border-radius: 16px;
+      padding: 26px 18px;             /* + gros */
+      border-radius: 18px;
       background: linear-gradient(180deg, var(--blue2), var(--blue));
       color: #fff;
-      font-size: 20px;
-      font-weight: 800;
+      font-size: 22px;                /* + gros */
+      font-weight: 900;
       letter-spacing: .3px;
       border: 1px solid rgba(255,255,255,.25);
-      box-shadow: 0 10px 18px rgba(11,78,162,.22);
+      box-shadow: 0 12px 22px rgba(11,78,162,.25);
       transition: transform .18s ease, filter .18s ease;
     }
     .btn:hover{
@@ -165,44 +141,51 @@
     .hint{
       margin-top: 18px;
       text-align:center;
-      font-size: 13px;
-      opacity: .75;
+      font-size: 14px;
+      opacity: .70;
     }
 
     footer{
       text-align:center;
-      padding: 18px 10px 26px;
-      font-size: 12px;
+      padding: 26px 10px 32px;
+      font-size: 13px;
       opacity: .65;
     }
 
     /* ===== MOBILE ===== */
-    @media (max-width: 640px){
+    @media (max-width: 700px){
+      header{
+        padding: 18px 16px;
+      }
       .header-inner{
         flex-direction: column;
-        gap: 10px;
-      }
-      .header-title{
-        padding: 0;
-      }
-      .header-title h1{
-        font-size: 16px;
+        gap: 14px;
       }
       .logo{
-        height: 56px;
+        height: 92px;
+      }
+      .header-title h1{
+        font-size: 22px;
+      }
+      .header-title .sub{
+        font-size: 16px;
+      }
+      .spacer-top{
+        height: 40px;
+      }
+      .panel{
+        padding: 22px;
       }
       .btn{
         width: 100%;
-        font-size: 18px;
-        padding: 20px 16px;
+        font-size: 20px;
+        padding: 22px 16px;
       }
     }
   </style>
 </head>
 
 <body>
-  <div class="page-bg"></div>
-  <div class="page-overlay"></div>
 
   <header>
     <div class="header-inner">
@@ -216,14 +199,14 @@
   </header>
 
   <main>
+    <div class="spacer-top"></div>
+
     <div class="panel">
       <div class="intro">
-        <div>
-          <h2>Choisissez votre formulaire</h2>
-          <p>
-            Sélectionnez le profil correspondant à votre mission. Le formulaire génère un PDF et déclenche l’envoi e-mail selon la configuration.
-          </p>
-        </div>
+        <h2>Choisissez votre formulaire</h2>
+        <p>
+          Sélectionnez le profil correspondant à votre mission. Le formulaire génère un PDF et déclenche l’envoi e-mail selon la configuration.
+        </p>
       </div>
 
       <div class="buttons">
@@ -234,7 +217,7 @@
       </div>
 
       <div class="hint">
-        Astuce : si tu ajoutes une photo en fond, mets-la en <b>fond-tir.jpg</b> à la racine et décommente la ligne dans le CSS.
+        (Photo de fond : on s’en occupe après.)
       </div>
     </div>
   </main>
@@ -242,5 +225,6 @@
   <footer>
     © Ligue de Tir Languedoc-Roussillon — Fédération Française de Tir
   </footer>
+
 </body>
 </html>
