@@ -249,7 +249,7 @@
     <div class="main-content">
       <div class="tabs">
         <button class="tab active" onclick="switchTab(event,'formulaire')">📝 Nouveau Formulaire</button>
-        <button class="tab" onclick="switchTab(event,'historique')">📊 Historique</button>
+        <button class="tab" id="tabHistorique" onclick="switchTab(event,\'historique\')" style="display:none">📊 Historique</button>
         <button class="tab admin-only" data-tab="config" onclick="switchTab(event,'config')">⚙️ Configuration Email</button>
       </div>
       <div class="admin-bar"><a href="#" id="adminLink" onclick="adminLogin();return false;">🔒 Admin</a><a href="#" id="adminClose" style="display:none" onclick="adminLogout();return false;">🔓 Fermer admin</a></div>
@@ -441,18 +441,38 @@
     }
 
     // IMPORTANT: change this code before publishing (keep it for you only)
-    const ADMIN_PIN = "2409";
+    const ADMIN_PIN = "1234";
 
     function updateAdminUI() {
       document.body.classList.toggle('is-admin', isAdmin());
-      
+
       // Toggle admin buttons
       const _adminLink = document.getElementById('adminLink');
       const _adminClose = document.getElementById('adminClose');
       if (_adminLink && _adminClose) {
-        if (isAdmin()) { _adminLink.style.display = 'none'; _adminClose.style.display = 'inline-block'; }
-        else { _adminLink.style.display = 'inline-block'; _adminClose.style.display = 'none'; }
+        if (isAdmin()) {
+          _adminLink.style.display = 'none';
+          _adminClose.style.display = 'inline-block';
+        } else {
+          _adminLink.style.display = 'inline-block';
+          _adminClose.style.display = 'none';
+        }
       }
+
+      // Toggle Historique tab (admin only)
+      const _tabHist = document.getElementById('tabHistorique');
+      if (_tabHist) {
+        _tabHist.style.display = (isAdmin() ? '' : 'none');
+      }
+
+      // If user logs out while on Historique, return to formulaire
+      if (!isAdmin()) {
+        const histPanel = document.getElementById('historique');
+        if (histPanel && histPanel.classList.contains('active') && typeof switchTab === 'function') {
+          switchTab(null, 'formulaire');
+        }
+      }
+    }
 // If not admin and config is open, return to formulaire
       if (!isAdmin()) {
         const activeTabBtn = document.querySelector('.tab.active');
@@ -490,7 +510,13 @@
     }
 
     function switchTab(e, tabName) {
-      // Block config for non-admins
+      
+      // Block historique for non-admins
+      if (tabName === 'historique' && !ADMIN_UNLOCKED) {
+        adminLogin();
+        if (!ADMIN_UNLOCKED) { return; }
+      }
+// Block config for non-admins
       if (tabName === 'config' && !isAdmin()) {
         adminLogin();
         // if still not admin, stay on current tab
