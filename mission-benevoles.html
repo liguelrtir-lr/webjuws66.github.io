@@ -252,7 +252,7 @@
         <button class="tab" onclick="switchTab(event,'historique')">📊 Historique</button>
         <button class="tab admin-only" data-tab="config" onclick="switchTab(event,'config')">⚙️ Configuration Email</button>
       </div>
-      <div class="admin-bar"><a href="#" id="adminLink" onclick="adminLogin();return false;">🔒 Admin</a></div>
+      <div class="admin-bar"><a href="#" id="adminLink" onclick="adminLogin();return false;">🔒 Admin</a><a href="#" id="adminClose" style="display:none" onclick="adminLogout();return false;">🔓 Fermer admin</a></div>
 
       <!-- Onglet Formulaire -->
       <div id="formulaire" class="tab-content active">
@@ -441,11 +441,19 @@
     }
 
     // IMPORTANT: change this code before publishing (keep it for you only)
-    const ADMIN_PIN = "2409";
+    const ADMIN_PIN = "1234";
 
     function updateAdminUI() {
       document.body.classList.toggle('is-admin', isAdmin());
-      // If not admin and config is open, return to formulaire
+      
+      // Toggle admin buttons
+      const _adminLink = document.getElementById('adminLink');
+      const _adminClose = document.getElementById('adminClose');
+      if (_adminLink && _adminClose) {
+        if (isAdmin()) { _adminLink.style.display = 'none'; _adminClose.style.display = 'inline-block'; }
+        else { _adminLink.style.display = 'inline-block'; _adminClose.style.display = 'none'; }
+      }
+// If not admin and config is open, return to formulaire
       if (!isAdmin()) {
         const activeTabBtn = document.querySelector('.tab.active');
         if (activeTabBtn && activeTabBtn.dataset && activeTabBtn.dataset.tab === 'config') {
