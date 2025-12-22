@@ -1,220 +1,136 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ordres de mission – Ligue de Tir</title>
+  <meta charset="UTF-8">
+  <title>Ligue de Tir – Missions</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-:root{
-  --bg1:#050816;
-  --bg2:#0b1020;
-  --panel:rgba(255,255,255,.10);
-  --card:#ffffff;
-  --text:#0f172a;
-  --muted:#6b7280;
-  --accent:#2f76ff;
-}
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-*{box-sizing:border-box}
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: #ffffff;
+      min-height: 100vh;
+      background:
+        linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
+        url("https://images.unsplash.com/photo-1601933470928-c6c4a4a5f3f5?auto=format&fit=crop&w=1600&q=80");
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      flex-direction: column;
+    }
 
-body{
-  margin:0;
-  font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-  min-height:100vh;
-  color:white;
-  background:
-    radial-gradient(1200px 700px at 20% 0%, rgba(47,118,255,.30), transparent 60%),
-    linear-gradient(160deg, var(--bg1), var(--bg2));
-}
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 40px;
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(4px);
+    }
 
-/* ===== HEADER (reste en haut) ===== */
-header{
-  max-width:1200px;
-  margin:auto;
-  padding:36px 24px 24px;
-}
+    header img {
+      height: 90px;
+      max-width: 100%;
+    }
 
-.kicker{
-  font-size:13px;
-  letter-spacing:.18em;
-  text-transform:uppercase;
-  opacity:.8;
-}
+    .title {
+      text-align: center;
+      margin-top: 60px;
+    }
 
-header h1{
-  margin:6px 0 10px;
-  font-size:clamp(26px,3vw,40px);
-  font-weight:800;
-}
+    .title h1 {
+      margin: 0;
+      font-size: 34px;
+      letter-spacing: 1px;
+    }
 
-header p{
-  margin:0;
-  max-width:760px;
-  font-size:15px;
-  opacity:.85;
-}
+    .title p {
+      margin-top: 10px;
+      font-size: 18px;
+      opacity: 0.9;
+    }
 
-/* ===== MAIN (centre les cartes verticalement) ===== */
-main{
-  max-width:1200px;
-  margin:auto;
-  padding:0 24px;
-  min-height:calc(100vh - 210px);
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-}
+    .buttons {
+      margin: 60px auto 0;
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 900px;
+      padding: 0 20px;
+    }
 
-.panel{
-  background:var(--panel);
-  border-radius:22px;
-  padding:18px;
-  backdrop-filter:blur(10px);
-}
+    .buttons a {
+      text-decoration: none;
+      background: rgba(255,255,255,0.12);
+      border: 2px solid rgba(255,255,255,0.5);
+      color: #ffffff;
+      padding: 28px 40px;
+      border-radius: 14px;
+      font-size: 20px;
+      font-weight: 600;
+      width: 260px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
 
-.grid{
-  background:rgba(255,255,255,.94);
-  border-radius:18px;
-  padding:18px;
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:18px;
-}
+    .buttons a:hover {
+      background: #ffffff;
+      color: #000000;
+      transform: translateY(-4px);
+    }
 
-@media(max-width:900px){
-  main{min-height:auto}
-  .grid{grid-template-columns:1fr}
-}
+    footer {
+      margin-top: auto;
+      padding: 20px;
+      text-align: center;
+      font-size: 14px;
+      opacity: 0.7;
+    }
 
-/* ===== CARDS ===== */
-.card{
-  background:var(--card);
-  border-radius:16px;
-  padding:22px;
-  color:var(--text);
-  box-shadow:0 12px 32px rgba(0,0,0,.10);
-  cursor:pointer;
-  transition:transform .12s ease, box-shadow .12s ease;
-}
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        gap: 15px;
+      }
 
-.card:hover{
-  transform:translateY(-3px);
-  box-shadow:0 18px 46px rgba(0,0,0,.14);
-}
+      header img {
+        height: 70px;
+      }
 
-.badge{
-  display:inline-block;
-  padding:6px 12px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:700;
-  background:rgba(47,118,255,.12);
-  color:var(--accent);
-  margin-bottom:12px;
-}
-
-.title{
-  font-size:18px;
-  font-weight:800;
-  margin:0 0 6px;
-}
-
-.desc{
-  font-size:14.5px;
-  color:var(--muted);
-  line-height:1.45;
-}
-
-.open{
-  margin-top:16px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font-weight:700;
-  color:var(--accent);
-  font-size:14px;
-}
-
-.open span{
-  width:26px;
-  height:26px;
-  border-radius:50%;
-  display:grid;
-  place-items:center;
-  background:rgba(47,118,255,.12);
-}
-
-/* ===== FOOTER ===== */
-footer{
-  text-align:center;
-  font-size:12px;
-  opacity:.7;
-  padding:18px 0 22px;
-}
-</style>
+      .title h1 {
+        font-size: 26px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<header>
-  <div class="kicker">Ligue de Tir</div>
-  <h1>Ordres de mission</h1>
-  <p>
-    Sélectionnez le profil concerné pour accéder au formulaire correspondant.
-    Le document PDF est généré automatiquement.
-  </p>
-</header>
+  <header>
+    <img src="Unknown.png" alt="Ligue de Tir Languedoc-Roussillon">
+    <img src="748px-FFTir_Logo.svg.png" alt="Fédération Française de Tir">
+  </header>
 
-<main>
-  <section class="panel">
-    <div class="grid">
+  <div class="title">
+    <h1>Gestion des missions</h1>
+    <p>Ligue de Tir Languedoc-Roussillon</p>
+  </div>
 
-      <div class="card" onclick="go('mission-benevoles.html')">
-        <div class="badge">Bénévoles</div>
-        <div class="title">Mission Bénévole</div>
-        <div class="desc">
-          Formulaire simplifié.<br>
-          Indemnité : <b>30 € par jour</b> (1 à 3 jours).<br>
-          PDF + envoi email.
-        </div>
-        <div class="open"><span>→</span> Ouvrir</div>
-      </div>
+  <div class="buttons">
+    <a href="mission-benevoles.html">Bénévoles</a>
+    <a href="mission-arbitres-repas.html">Arbitres</a>
+    <a href="Mission-comite.html">Comité Directeur</a>
+  </div>
 
-      <div class="card" onclick="go('mission-arbitres-repas.html')">
-        <div class="badge">Arbitres</div>
-        <div class="title">Mission Arbitre</div>
-        <div class="desc">
-          Présence avec ou sans repas.<br>
-          Indemnités : <b>30 € / 50 €</b> selon les jours.<br>
-          PDF + envoi email.
-        </div>
-        <div class="open"><span>→</span> Ouvrir</div>
-      </div>
-
-      <div class="card" onclick="go('mission-comite.html')">
-        <div class="badge">Comité / Direction</div>
-        <div class="title">Mission Comité / Directeur</div>
-        <div class="desc">
-          Frais complets : km, hôtel, repas, péages.<br>
-          Calcul automatique + PDF officiel.
-        </div>
-        <div class="open"><span>→</span> Ouvrir</div>
-      </div>
-
-    </div>
-  </section>
-</main>
-
-<footer>
-  © Ligue de Tir – Ordres de mission
-</footer>
-
-<script>
-function go(file){
-  window.location.href = file;
-}
-</script>
+  <footer>
+    © Ligue de Tir Languedoc-Roussillon – FFTir
+  </footer>
 
 </body>
 </html>
