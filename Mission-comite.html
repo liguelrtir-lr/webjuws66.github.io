@@ -5,96 +5,81 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Système Ordre de Mission - Ligue Languedoc Roussillon</title>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
-// ===== ADMIN LOCK =====
-const ADMIN_PIN = "2409"; // A CHANGER
-let ADMIN_UNLOCKED = false;
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>
+    // ===== ADMIN LOCK (local) =====
+    const ADMIN_PIN = "2409"; // à changer si besoin
 
-function adminLogin(){
-  const pin = prompt("Code admin :");
-  if(pin === ADMIN_PIN){
-    ADMIN_UNLOCKED = true;
-    updateAdminUI();
-    switchTab({preventDefault:()=>{}}, 'config');
-  } else {
-    alert("Code incorrect");
-  }
-}
+    function isAdmin(){
+      return localStorage.getItem('om_admin') === '1';
+    }
 
-function adminLogout(){
-  ADMIN_UNLOCKED = false;
-  updateAdminUI();
-  switchTab({preventDefault:()=>{}}, 'formulaire');
-}
-
-function updateAdminUI(){
-  const tab = document.querySelector('[data-admin="true"]');
-  const panel = document.getElementById('config');
-  const openBtn = document.getElementById('adminLink');
-  const closeBtn = document.getElementById('adminClose');
-
-  if(ADMIN_UNLOCKED){
-    if(tab) tab.style.display = '';
-    if(panel) panel.style.display = 'block';
-    if(openBtn) openBtn.style.display = 'none';
-    if(closeBtn) closeBtn.style.display = '';
-  } else {
-    if(tab) tab.style.display = 'none';
-    if(panel) panel.style.display = 'none';
-    if(openBtn) openBtn.style.display = '';
-    if(closeBtn) closeBtn.style.display = 'none';
-  }
-
-      // Toggle Historique tab (admin only)
-      const _tabHist = document.getElementById('tabHistorique');
-      if (_tabHist) {
-        _tabHist.style.display = (ADMIN_UNLOCKED ? '' : 'none');
+    function adminLogin(){
+      const pin = prompt("Code admin :");
+      if (pin === null) return;
+      if (pin === ADMIN_PIN){
+        localStorage.setItem('om_admin','1');
+        updateAdminUI();
+      } else {
+        alert("Code incorrect");
       }
-}
+    }
 
-</script>
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
-// ===== ADMIN LOCK =====
-const ADMIN_PIN = "2409"; // A CHANGER
-let ADMIN_UNLOCKED = false;
+    function adminLogout(){
+      localStorage.removeItem('om_admin');
+      updateAdminUI();
+      // retour sur formulaire
+      safeSwitchTab('formulaire');
+    }
 
-function adminLogin(){
-  const pin = prompt("Code admin :");
-  if(pin === ADMIN_PIN){
-    ADMIN_UNLOCKED = true;
-    updateAdminUI();
-    switchTab({preventDefault:()=>{}}, 'config');
-  } else {
-    alert("Code incorrect");
-  }
-}
+    function updateAdminUI(){
+      document.body.classList.toggle('is-admin', isAdmin());
+      // montre/cache tous les éléments admin
+      document.querySelectorAll('[data-admin="true"]').forEach(el=>{
+        el.style.display = isAdmin() ? '' : 'none';
+      });
+      const openBtn = document.getElementById('adminLink');
+      const closeBtn = document.getElementById('adminClose');
+      if(openBtn) openBtn.style.display = isAdmin() ? 'none' : '';
+      if(closeBtn) closeBtn.style.display = isAdmin() ? '' : 'none';
+    }
 
-function adminLogout(){
-  ADMIN_UNLOCKED = false;
-  updateAdminUI();
-  switchTab({preventDefault:()=>{}}, 'formulaire');
-}
+    function safeSwitchTab(tabName){
+      // active le bouton correspondant si présent
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+      const btn = document.querySelector(`.tab[onclick*="'${tabName}'"], .tab[onclick*="\'${tabName}\'"]`);
+      if(btn) btn.classList.add('active');
+      const panel = document.getElementById(tabName);
+      if(panel) panel.classList.add('active');
+      if(tabName === 'historique' && typeof loadMissionsTable === 'function') loadMissionsTable();
+    }
 
-function updateAdminUI(){
-  const tab = document.querySelector('[data-admin="true"]');
-  const panel = document.getElementById('config');
-  const openBtn = document.getElementById('adminLink');
-  const closeBtn = document.getElementById('adminClose');
+    // Patch switchTab pour éviter les crash si e est null / ou appelé depuis adminLogout
+    function switchTab(e, tabName){
+      if((tabName === 'config' || tabName === 'historique') && !isAdmin()){
+        adminLogin();
+        if(!isAdmin()) return;
+      }
+      // reset
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
 
-  if(ADMIN_UNLOCKED){
-    if(tab) tab.style.display = '';
-    if(panel) panel.style.display = 'block';
-    if(openBtn) openBtn.style.display = 'none';
-    if(closeBtn) closeBtn.style.display = '';
-  } else {
-    if(tab) tab.style.display = 'none';
-    if(panel) panel.style.display = 'none';
-    if(openBtn) openBtn.style.display = '';
-    if(closeBtn) closeBtn.style.display = 'none';
-  }
-}
+      // bouton
+      const btn = e && e.currentTarget ? e.currentTarget :
+        document.querySelector(`.tab[onclick*="'${tabName}'"], .tab[onclick*="\'${tabName}\'"]`);
+      if(btn) btn.classList.add('active');
 
-</script>
+      const panel = document.getElementById(tabName);
+      if(panel) panel.classList.add('active');
+
+      if(tabName === 'historique' && typeof loadMissionsTable === 'function') loadMissionsTable();
+    }
+
+    window.addEventListener('DOMContentLoaded', updateAdminUI);
+  </script>
+
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -323,7 +308,7 @@ function updateAdminUI(){
 
 <div class="tabs">
         <button class="tab active" onclick="switchTab(event,'formulaire')">📝 Nouveau Formulaire</button>
-        <button class="tab" id="tabHistorique" onclick="switchTab(event,\'historique\')" style="display:none">📊 Historique</button>
+        <button class="tab" onclick="switchTab(event,'historique')" data-admin="true" style="display:none" data-admin="true" style="display:none">📊 Historique</button>
         <button class="tab" onclick="switchTab(event,'config')" data-admin="true" style="display:none">⚙️ Configuration Email</button>
       </div>
 
@@ -448,7 +433,7 @@ function updateAdminUI(){
       </div>
 
       <!-- Onglet Historique -->
-      <div id="historique" class="tab-content">
+      <div id="historique" class="tab-content" data-admin="true">
         <h3 style="margin-bottom: 20px;">📊 Historique des missions</h3>
 
         <button class="btn btn-secondary" onclick="exportToExcel()">
@@ -477,7 +462,7 @@ function updateAdminUI(){
       </div>
 
       <!-- Onglet Configuration -->
-      <div id="config" class="tab-content" style="display:none">
+      <div id="config" class="tab-content" data-admin="true" style="display:none">
         <h3 style="margin-bottom: 20px;">⚙️ Configuration EmailJS</h3>
 
         <div class="config-box">
@@ -545,13 +530,7 @@ function updateAdminUI(){
 
     // ====== LOGO (persisté dans le navigateur) ======
     function switchTab(e, tabName) {
-      
-      // Block historique for non-admins
-      if (tabName === 'historique' && !ADMIN_UNLOCKED) {
-        adminLogin();
-        if (!ADMIN_UNLOCKED) { return; }
-      }
-document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
       e.currentTarget.classList.add('active');
@@ -935,7 +914,7 @@ document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'))
           });
   
 // ===== ADMIN LOCK =====
-const ADMIN_PIN = "1234"; // A CHANGER
+const ADMIN_PIN = "2409"; // 
 let ADMIN_UNLOCKED = false;
 
 function adminLogin(){
