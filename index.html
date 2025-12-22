@@ -29,7 +29,7 @@
     header{
       background: var(--blue);
       color:#fff;
-      padding: 26px 28px;             /* + haut */
+      padding: 26px 28px;
       box-shadow: 0 10px 28px rgba(0,0,0,.20);
     }
     .header-inner{
@@ -41,7 +41,7 @@
     }
 
     .logo{
-      height: 120px;                  /* x2 vs avant */
+      height: 120px;
       width: auto;
       display:block;
       object-fit: contain;
@@ -58,14 +58,14 @@
     }
     .header-title h1{
       margin:0;
-      font-size: 34px;                /* x2-ish */
+      font-size: 34px;
       letter-spacing: .9px;
       font-weight: 900;
       text-transform: uppercase;
     }
     .header-title .sub{
       margin-top:10px;
-      font-size: 20px;                /* plus gros */
+      font-size: 20px;
       opacity: .95;
       font-weight: 700;
     }
@@ -77,9 +77,9 @@
       padding: 0 22px;
     }
 
-    /* Décalage vers le bas (A4/plein écran plus joli) */
+    /* Décalage vers le bas (A4/plein écran) */
     .spacer-top{
-      height: 110px;                  /* pousse le bloc vers le bas */
+      height: 150px; /* + bas */
     }
 
     .panel{
@@ -92,7 +92,7 @@
 
     .intro h2{
       margin:0;
-      font-size: 28px;                /* un peu + gros */
+      font-size: 28px;
       font-weight: 900;
       color: var(--blue);
     }
@@ -104,12 +104,15 @@
       max-width: 920px;
     }
 
+    /* ===== BOUTONS : 3 SUR UNE LIGNE (PC) ===== */
     .buttons{
       margin-top: 30px;
-      display:flex;
-      flex-wrap: wrap;
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 22px;
-      justify-content:center;
+      max-width: 1120px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .btn{
@@ -117,13 +120,12 @@
       align-items:center;
       justify-content:center;
       text-decoration:none;
-      width: 360px;                   /* + gros */
-      max-width: 100%;
-      padding: 26px 18px;             /* + gros */
+      width: 100%;
+      padding: 26px 18px;
       border-radius: 18px;
       background: linear-gradient(180deg, var(--blue2), var(--blue));
       color: #fff;
-      font-size: 22px;                /* + gros */
+      font-size: 22px;
       font-weight: 900;
       letter-spacing: .3px;
       border: 1px solid rgba(255,255,255,.25);
@@ -152,7 +154,13 @@
       opacity: .65;
     }
 
-    /* ===== MOBILE ===== */
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px){
+      .buttons{
+        grid-template-columns: 1fr;
+      }
+    }
+
     @media (max-width: 700px){
       header{
         padding: 18px 16px;
@@ -177,7 +185,6 @@
         padding: 22px;
       }
       .btn{
-        width: 100%;
         font-size: 20px;
         padding: 22px 16px;
       }
@@ -212,7 +219,6 @@
       <div class="buttons">
         <a class="btn" href="mission-benevoles.html">Bénévoles</a>
         <a class="btn" href="mission-arbitres-repas.html">Arbitres</a>
-        <!-- IMPORTANT : majuscule M car ton fichier s'appelle Mission-comite.html -->
         <a class="btn" href="Mission-comite.html">Comité Directeur</a>
       </div>
 
