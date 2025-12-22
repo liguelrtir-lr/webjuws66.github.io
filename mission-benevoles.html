@@ -459,6 +459,27 @@
         }
       }
 
+      // Tabs/panels admin-only (Historique + Config)
+      const tabHist = document.getElementById('tabHistorique');
+      if (tabHist) tabHist.style.display = (isAdmin() ? '' : 'none');
+
+      const tabCfg = document.getElementById('tabConfig');
+      if (tabCfg) tabCfg.style.display = (isAdmin() ? '' : 'none');
+
+      // Si on perd le mode admin alors qu'on est sur un panneau admin-only -> retour formulaire
+      if (!isAdmin()) {
+        const activeContent = document.querySelector('.tab-content.active');
+        if (activeContent && (activeContent.id === 'historique' || activeContent.id === 'config')) {
+          // Retour "sans event"
+          switchTab(null, 'formulaire');
+        }
+      }
+    } else {
+          _adminLink.style.display = 'inline-block';
+          _adminClose.style.display = 'none';
+        }
+      }
+
       // Toggle Historique tab (admin only)
       const _tabHist = document.getElementById('tabHistorique');
       if (_tabHist) {
@@ -470,24 +491,6 @@
         const histPanel = document.getElementById('historique');
         if (histPanel && histPanel.classList.contains('active') && typeof switchTab === 'function') {
           switchTab(null, 'formulaire');
-        }
-      }
-    }
-// If not admin and config is open, return to formulaire
-      if (!isAdmin()) {
-        const activeTabBtn = document.querySelector('.tab.active');
-        if (activeTabBtn && activeTabBtn.dataset && activeTabBtn.dataset.tab === 'config') {
-          // nothing
-        }
-        const activeContent = document.querySelector('.tab-content.active');
-        if (activeContent && activeContent.id === 'config') {
-          // fallback to formulaire
-          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-          const firstBtn = document.querySelector('.tab[onclick*="formulaire"]');
-          if (firstBtn) firstBtn.classList.add('active');
-          const firstContent = document.getElementById('formulaire');
-          if (firstContent) firstContent.classList.add('active');
         }
       }
     }
@@ -510,12 +513,35 @@
     }
 
     function switchTab(e, tabName) {
-      
-      // Block historique for non-admins
-      if (tabName === 'historique' && !ADMIN_UNLOCKED) {
+      // Bloque Historique & Config si pas admin
+      if ((tabName === 'historique' || tabName === 'config') && !isAdmin()) {
         adminLogin();
-        if (!ADMIN_UNLOCKED) { return; }
+        if (!isAdmin()) return;
       }
+
+      // reset UI
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+      // activer le bouton: si e est null, on le retrouve
+      let btn = e && e.currentTarget ? e.currentTarget : null;
+      if (!btn) {
+        // 1) boutons avec data-tab (si tu l'utilises)
+        btn = document.querySelector(`.tab[data-tab="${tabName}"]`);
+      }
+      if (!btn) {
+        // 2) fallback: bouton qui appelle switchTab(...,'tabName')
+        btn = document.querySelector(`.tab[onclick*="'${tabName}'"], .tab[onclick*="\'${tabName}\'"]`);
+      }
+      if (btn) btn.classList.add('active');
+
+      // activer le panneau
+      const panel = document.getElementById(tabName);
+      if (panel) panel.classList.add('active');
+
+      if (tabName === 'historique') loadMissionsTable();
+    }
+    window.switchTab = switchTab;
 // Block config for non-admins
       if (tabName === 'config' && !isAdmin()) {
         adminLogin();
