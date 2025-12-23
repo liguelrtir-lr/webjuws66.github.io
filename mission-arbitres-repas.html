@@ -1018,44 +1018,7 @@ window.calculateTotal = calculateTotal;
 
           });
   
-// ===== ADMIN LOCK =====
-const ADMIN_PIN = "2409";
-let ADMIN_UNLOCKED = false;
 
-function adminLogin(){
-  const pin = prompt("Code admin :");
-  if(pin === ADMIN_PIN){
-    ADMIN_UNLOCKED = true;
-    updateAdminUI();
-  } else {
-    alert("Code incorrect");
-  }
-}
-
-function adminLogout(){
-  ADMIN_UNLOCKED = false;
-  updateAdminUI();
-  switchTab({preventDefault:()=>{}}, 'formulaire');
-}
-
-function updateAdminUI(){
-  const tab = document.querySelector('[data-admin="true"]');
-  const panel = document.getElementById('config');
-  const openBtn = document.getElementById('adminLink');
-  const closeBtn = document.getElementById('adminClose');
-
-  if(ADMIN_UNLOCKED){
-    if(tab) tab.style.display = '';
-    if(panel) panel.style.display = 'block';
-    if(openBtn) openBtn.style.display = 'none';
-    if(closeBtn) closeBtn.style.display = '';
-  } else {
-    if(tab) tab.style.display = 'none';
-    if(panel) panel.style.display = 'none';
-    if(openBtn) openBtn.style.display = '';
-    if(closeBtn) closeBtn.style.display = 'none';
-  }
-}
 
 </script>
 </body>
