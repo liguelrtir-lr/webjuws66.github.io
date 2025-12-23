@@ -543,22 +543,26 @@
     window.regeneratePDF = regeneratePDF;
 
     // ====== Calcul total ======
-    function calculateTotal() {
-      const km = parseFloat(document.getElementById('km').value) || 0;
-      const hotel = parseFloat(document.getElementById('hotel').value) || 0;
-      const restaurant = parseFloat(document.getElementById('restaurant').value) || 0;
-      const peages = parseFloat(document.getElementById('peages').value) || 0;
+    function calculateTotal(){
+      const km = parseFloat(document.getElementById('km')?.value) || 0;
+      const hotel = parseFloat(document.getElementById('hotel')?.value) || 0;
+      const restaurant = parseFloat(document.getElementById('restaurant')?.value) || 0;
+      const peages = parseFloat(document.getElementById('peages')?.value) || 0;
 
       const indemniteKm = km * 0.40;
       const total = indemniteKm + hotel + restaurant + peages;
 
-      document.getElementById('indemniteKm').value = indemniteKm.toFixed(2) + ' €';
-      document.getElementById('totalAmount').textContent = total.toFixed(2) + ' €';
+      const kmEl = document.getElementById('indemniteKm');
+      if (kmEl) kmEl.value = indemniteKm.toFixed(2).replace('.', ',') + ' €';
+
+      const totalEl = document.getElementById('totalAmount');
+      if (totalEl) totalEl.textContent = total.toFixed(2).replace('.', ',') + ' €';
+
       return total;
     }
     window.calculateTotal = calculateTotal;
 
-    // ====== PDF ======
+// ====== PDF ======
     function generatePDF(data) {
       const doc = new jsPDF();
 
