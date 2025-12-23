@@ -787,18 +787,7 @@
 
         // Email de notification (sans PJ)
         if (config.publicKey && config.serviceId && config.templateId) {
-          await emailjs.send(config.serviceId, config.templateId, {
-            to_email: formData.email,
-            to_name: formData.nom + ' ' + formData.prenom,
-            nom: formData.nom,
-            prenom: formData.prenom,
-            objet: formData.objet,
-            lieu: formData.lieu,
-            dateMission: formData.dateMission,
-            total: formData.total,
-            email: formData.email
-          });
-
+         
           await emailjs.send(config.serviceId, config.templateId, {
             to_email: config.emailLigue,
             to_name: 'Ligue Languedoc Roussillon',
