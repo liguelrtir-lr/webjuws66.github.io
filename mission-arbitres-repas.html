@@ -295,7 +295,7 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>🎯 Ordre de Mission – Arbitres</h1>
+      <h1>🎯 Ordre de Mission – Arbitres (repas)</h1>
       <div class="subtitle">Ligue de Tir Languedoc Roussillon</div>
     </div>
 
@@ -623,7 +623,7 @@ window.calculateTotal = calculateTotal;
       const doc = new jsPDF();
 
       // Bandeau
-      doc.setFillColor(102, 126, 234);
+      doc.setFillColor(192, 57, 43);
       doc.rect(0, 0, 210, 35, 'F');
 
       // Logo (intégré en dur)
@@ -639,7 +639,7 @@ window.calculateTotal = calculateTotal;
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(22);
       doc.setFont(undefined, 'bold');
-      doc.text('ORDRE DE MISSION ARBITRES', 105, 15, { align: 'center' });
+      doc.text('ORDRE DE MISSION', 105, 15, { align: 'center' });
 
       doc.setFontSize(11);
       doc.setFont(undefined, 'normal');
@@ -654,7 +654,7 @@ window.calculateTotal = calculateTotal;
 
       doc.setFontSize(13);
       doc.setFont(undefined, 'bold');
-      doc.setTextColor(102, 126, 234);
+      doc.setTextColor(192, 57, 43);
       doc.text('INFORMATIONS DE LA MISSION', 20, y);
 
       y += 8;
@@ -679,7 +679,7 @@ window.calculateTotal = calculateTotal;
 
       doc.setFontSize(13);
       doc.setFont(undefined, 'bold');
-      doc.setTextColor(102, 126, 234);
+      doc.setTextColor(192, 57, 43);
       doc.text('AGENT EN MISSION', 20, y);
 
       y += 8;
@@ -705,7 +705,7 @@ window.calculateTotal = calculateTotal;
 
       doc.setFontSize(13);
       doc.setFont(undefined, 'bold');
-      doc.setTextColor(102, 126, 234);
+      doc.setTextColor(192, 57, 43);
       doc.text("INDEMNITÉS D'ARBITRAGE", 20, y);
 
       y += 8;
@@ -735,12 +735,12 @@ window.calculateTotal = calculateTotal;
       y += 15;
       doc.setFontSize(13);
       doc.setFont(undefined, 'bold');
-      doc.setTextColor(102, 126, 234);
+      doc.setTextColor(192, 57, 43);
       doc.text('FRAIS À REMBOURSER', 20, y);
 
       y += 8;
 
-      doc.setFillColor(102, 126, 234);
+      doc.setFillColor(192, 57, 43);
       doc.rect(15, y - 5, 180, 8, 'F');
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(9);
@@ -774,7 +774,7 @@ window.calculateTotal = calculateTotal;
 
       // Total
       y += 2;
-      doc.setFillColor(102, 126, 234);
+      doc.setFillColor(192, 57, 43);
       doc.rect(15, y - 5, 180, 10, 'F');
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(11);
@@ -860,7 +860,18 @@ window.calculateTotal = calculateTotal;
 
         // Email de notification (sans PJ)
         if (config.publicKey && config.serviceId && config.templateId) {
-         
+          await emailjs.send(config.serviceId, config.templateId, {
+            to_email: formData.email,
+            to_name: formData.nom + ' ' + formData.prenom,
+            nom: formData.nom,
+            prenom: formData.prenom,
+            objet: formData.objet,
+            lieu: formData.lieu,
+            dateMission: formData.dateMission,
+            total: formData.total,
+            email: formData.email
+          });
+
           await emailjs.send(config.serviceId, config.templateId, {
             to_email: config.emailLigue,
             to_name: 'Ligue Languedoc Roussillon',
