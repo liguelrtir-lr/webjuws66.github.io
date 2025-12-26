@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Missions – Ligue de Tir</title>
- 
+
   <style>
     :root{
       --blue:#0b4ea2;
@@ -32,6 +32,7 @@
       inset: 0;
       background: url("fond-tir.jpg") center / cover no-repeat;
       z-index: -2;
+      pointer-events: none;
     }
 
     /* voile clair institutionnel */
@@ -41,6 +42,7 @@
       background: rgba(255,255,255,0.80);
       backdrop-filter: grayscale(0.45);
       z-index: -1;
+      pointer-events: none;
     }
 
     /* ===== HEADER ===== */
@@ -100,11 +102,7 @@
     }
 
     .panel{
-      background: linear-gradient(
-        180deg,
-        #ffffff 0%,
-        #e6edf7 100%
-      );
+      background: linear-gradient(180deg, #ffffff 0%, #e6edf7 100%);
       border: 1px solid rgba(11,78,162,0.30);
       border-radius: 22px;
       box-shadow:
@@ -127,7 +125,7 @@
       opacity: .9;
       max-width: 920px;
     }
-.page-bg, .page-overlay { pointer-events: none; }
+
     /* ===== BOUTONS ===== */
     .buttons{
       margin-top: 30px;
@@ -160,6 +158,13 @@
       transform: translateY(-3px);
       filter: brightness(1.05);
     }
+
+    /* ===== COULEURS DES MISSIONS ===== */
+    .btn.formation { background: #5E7CE2; }
+    .btn.arbitres  { background: #C0392B; }
+    .btn.benevoles { background: #27AE60; }
+    .btn.comite    { background: #6C3483; }
+    .btn.divers    { background: #E67E22; }
 
     .hint{
       margin-top: 18px;
@@ -210,19 +215,11 @@
         font-size: 20px;
         padding: 22px 16px;
       }
- /* Couleurs des missions */
-.btn.formation { background-color: #5E7CE2; }
-.btn.arbitres  { background-color: #C0392B; }
-.btn.benevoles { background-color: #27AE60; }
-.btn.comite    { background-color: #6C3483; }
-.btn.divers    { background-color: #E67E22; }
-
+    }
   </style>
 </head>
 
 <body>
-
-  <!-- fond photo -->
   <div class="page-bg"></div>
   <div class="page-overlay"></div>
 
@@ -244,22 +241,20 @@
       <div class="intro">
         <h2>Choisissez votre formulaire</h2>
         <p>
-          Sélectionnez le profil correspondant à votre mission.  
+          Sélectionnez le profil correspondant à votre mission.
           Le formulaire génère un PDF qui se télécharge automatiquement sur votre ordinateur
           et déclenche l’envoi d'un courriel d'information à la ligue.
           Envoyez votre PDF et les justificatifs en suivant.
         </p>
       </div>
 
-    <div class="buttons">
-  <a class="btn benevoles" href="mission-benevoles.html">Bénévoles</a>
-  <a class="btn arbitres"  href="mission-arbitres-repas.html">Arbitres</a>
-  <a class="btn comite"    href="Mission-comite.html">Comité Directeur</a>
-  <a class="btn formation" href="formation.html">Formation</a>
-  <a class="btn divers"    href="divers.html">Divers</a>
-</div>
-
-
+      <div class="buttons">
+        <a class="btn benevoles" href="mission-benevoles.html">Bénévoles</a>
+        <a class="btn arbitres"  href="mission-arbitres-repas.html">Arbitres</a>
+        <a class="btn comite"    href="Mission-comite.html">Comité Directeur</a>
+        <a class="btn formation" href="formation.html">Formation</a>
+        <a class="btn divers"    href="divers.html">Divers</a>
+      </div>
 
       <div class="hint">
         <!-- (optionnel) Tu peux mettre ici une phrase d’aide si tu veux -->
