@@ -99,20 +99,19 @@
       height: 280px;
     }
 
-.panel{
-  background: linear-gradient(
-    180deg,
-    #ffffff 0%,
-    #e6edf7 100%
-  );
-  border: 1px solid rgba(11,78,162,0.30);
-  border-radius: 22px;
-  box-shadow:
-    0 16px 36px rgba(0,0,0,.14),
-    inset 0 2px 0 rgba(255,255,255,.9);
-  padding: 34px;
-}
-
+    .panel{
+      background: linear-gradient(
+        180deg,
+        #ffffff 0%,
+        #e6edf7 100%
+      );
+      border: 1px solid rgba(11,78,162,0.30);
+      border-radius: 22px;
+      box-shadow:
+        0 16px 36px rgba(0,0,0,.14),
+        inset 0 2px 0 rgba(255,255,255,.9);
+      padding: 34px;
+    }
 
     .intro h2{
       margin:0;
@@ -133,7 +132,7 @@
     .buttons{
       margin-top: 30px;
       display:grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 22px;
       max-width: 1120px;
       margin-left: auto;
@@ -154,6 +153,7 @@
       letter-spacing:.3px;
       box-shadow: 0 12px 22px rgba(11,78,162,.25);
       transition: transform .18s ease, filter .18s ease;
+      text-align:center;
     }
 
     .btn:hover{
@@ -176,12 +176,6 @@
     }
 
     /* ===== RESPONSIVE ===== */
-    @media (max-width: 900px){
-      .buttons{
-        grid-template-columns: 1fr;
-      }
-    }
-
     @media (max-width: 700px){
       header{
         padding: 18px 16px;
@@ -255,10 +249,12 @@
         <a class="btn" href="mission-benevoles.html">Bénévoles</a>
         <a class="btn" href="mission-arbitres-repas.html">Arbitres</a>
         <a class="btn" href="Mission-comite.html">Comité Directeur</a>
+        <a class="btn" href="formation.html">Formation</a>
+        <a class="btn" href="divers.html">Divers</a>
       </div>
 
       <div class="hint">
-      
+        <!-- (optionnel) Tu peux mettre ici une phrase d’aide si tu veux -->
       </div>
     </div>
   </main>
