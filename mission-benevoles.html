@@ -597,7 +597,7 @@
       const doc = new jsPDF();
 
       // Bandeau
-      doc.setFillColor(102, 126, 234);
+      doc.setFillColor(39, 174, 96);
       doc.rect(0, 0, 210, 35, 'F');
 
       // Logo (intégré en dur)
@@ -613,7 +613,7 @@
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(22);
       doc.setFont(undefined, 'bold');
-      doc.text('ORDRE DE MISSION BENEVOLES', 105, 15, { align: 'center' });
+      doc.text('ORDRE DE MISSION', 105, 15, { align: 'center' });
 
       doc.setFontSize(11);
       doc.setFont(undefined, 'normal');
@@ -628,7 +628,7 @@
 
       doc.setFontSize(13);
       doc.setFont(undefined, 'bold');
-      doc.setTextColor(102, 126, 234);
+      doc.setTextColor(39, 174, 96);
       doc.text('INFORMATIONS DE LA MISSION', 20, y);
 
       y += 8;
@@ -653,7 +653,7 @@
 
       doc.setFontSize(13);
       doc.setFont(undefined, 'bold');
-      doc.setTextColor(102, 126, 234);
+      doc.setTextColor(39, 174, 96);
       doc.text('AGENT EN MISSION', 20, y);
 
       y += 8;
@@ -675,12 +675,12 @@
       y += 15;
       doc.setFontSize(13);
       doc.setFont(undefined, 'bold');
-      doc.setTextColor(102, 126, 234);
+      doc.setTextColor(39, 174, 96);
       doc.text('FRAIS À REMBOURSER', 20, y);
 
       y += 8;
 
-      doc.setFillColor(102, 126, 234);
+      doc.setFillColor(39, 174, 96);
       doc.rect(15, y - 5, 180, 8, 'F');
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(9);
@@ -711,7 +711,7 @@
 
       // Total
       y += 2;
-      doc.setFillColor(102, 126, 234);
+      doc.setFillColor(39, 174, 96);
       doc.rect(15, y - 5, 180, 10, 'F');
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(11);
@@ -787,7 +787,18 @@
 
         // Email de notification (sans PJ)
         if (config.publicKey && config.serviceId && config.templateId) {
-         
+          await emailjs.send(config.serviceId, config.templateId, {
+            to_email: formData.email,
+            to_name: formData.nom + ' ' + formData.prenom,
+            nom: formData.nom,
+            prenom: formData.prenom,
+            objet: formData.objet,
+            lieu: formData.lieu,
+            dateMission: formData.dateMission,
+            total: formData.total,
+            email: formData.email
+          });
+
           await emailjs.send(config.serviceId, config.templateId, {
             to_email: config.emailLigue,
             to_name: 'Ligue Languedoc Roussillon',
