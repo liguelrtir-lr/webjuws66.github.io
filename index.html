@@ -3,268 +3,238 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Missions – Ligue de Tir</title>
+  <title>Missions – Choix du formulaire</title>
 
   <style>
     :root{
-      --blue:#0b4ea2;
-      --blue2:#1e73d8;
-      --bg:#f3f6fb;
+      /* Base */
       --text:#0b1b2b;
-      --card:#ffffff;
-      --border: rgba(11,27,43,.18);
-      --shadow: 0 14px 34px rgba(0,0,0,.12);
+      --muted:#4b5a6b;
+      --card: rgba(255,255,255,.86);
+      --cardBorder: rgba(15, 33, 55, .12);
+      --shadow: 0 22px 60px rgba(0,0,0,.18);
+      --shadowSoft: 0 14px 34px rgba(0,0,0,.14);
+
+      /* Fond */
+      --bg1:#eef3fb;
+      --bg2:#f7f3ff;
+      --bg3:#f7fbf6;
+
+      /* Dégradés boutons (soft) */
+      --bene1:#cfe9dc; --bene2:#a9d6c3; --beneText:#1f4f3a;
+      --arb1:#f1d1c7;  --arb2:#d9a295;  --arbText:#6b2d20;
+      --com1:#e2d7ea;  --com2:#bfa9d6;  --comText:#4a2a63;
+      --for1:#dbe4f2;  --for2:#b7c8e6;  --forText:#243a5e;
+      --div1:#f6e1c8;  --div2:#e7c49c;  --divText:#6b4a1f;
     }
 
     *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+  body{
+  margin:0;
+  font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+  color: var(--text);
 
-    body{
-      margin:0;
-      font-family: "Segoe UI", Arial, sans-serif;
-      color:var(--text);
-      min-height:100vh;
-      background: var(--bg);
+  background-color: #f5f8fc;
+
+  /* on sépare pour éviter les soucis de parsing */
+  background-image:
+    linear-gradient(rgba(245,248,252,0.55), rgba(245,248,252,0.55)),
+    url("./fond-tir.jpg");
+
+  background-position: center, center;
+  background-size: cover, cover;
+  background-repeat: no-repeat, no-repeat;
+  background-attachment: fixed, fixed;
+
+  overflow-x:hidden;
+}
+
+
+    /* Petit décor "soft" */
+    .blob{
+      position:fixed;
+      inset:auto;
+      width:520px; height:520px;
+      filter: blur(40px);
+      opacity:.35;
+      border-radius: 50%;
+      z-index:-1;
     }
+    .blob.b1{ left:-160px; top:-160px; background: linear-gradient(135deg, #d6e6ff, #e9d6ff); }
+    .blob.b2{ right:-180px; top:120px;  background: linear-gradient(135deg, #d2f1e3, #ffe8c9); }
+    .blob.b3{ left:20%; bottom:-260px; background: linear-gradient(135deg, #ffe3ea, #dce8ff); }
 
-    /* ===== FOND PHOTO ===== */
-    .page-bg{
-      position: fixed;
-      inset: 0;
-      background: url("fond-tir.jpg") center / cover no-repeat;
-      z-index: -2;
-      pointer-events: none;
-    }
-
-    /* voile clair institutionnel */
-    .page-overlay{
-      position: fixed;
-      inset: 0;
-      background: rgba(255,255,255,0.80);
-      backdrop-filter: grayscale(0.45);
-      z-index: -1;
-      pointer-events: none;
-    }
-
-    /* ===== HEADER ===== */
-    header{
-      background: var(--blue);
-      color:#fff;
-      padding: 26px 28px;
-      box-shadow: 0 10px 28px rgba(0,0,0,.20);
-    }
-
-    .header-inner{
-      max-width: 1200px;
-      margin: 0 auto;
+    .wrap{
+      min-height:100%;
       display:flex;
+      flex-direction:column;
       align-items:center;
-      gap: 22px;
-    }
-
-    .logo{
-      height: 120px;
-      width: auto;
-      background: rgba(255,255,255,.10);
-      border-radius: 16px;
-      padding: 10px;
-    }
-
-    .header-title{
-      flex: 1;
-      text-align:center;
-      line-height:1.1;
-    }
-
-    .header-title h1{
-      margin:0;
-      font-size: 34px;
-      font-weight: 900;
-      letter-spacing: .9px;
-      text-transform: uppercase;
-    }
-
-    .header-title .sub{
-      margin-top:10px;
-      font-size: 20px;
-      font-weight: 700;
-      opacity: .95;
-    }
-
-    /* ===== MAIN ===== */
-    main{
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 22px;
-    }
-
-    .spacer-top{
-      height: 280px;
-    }
-
-    .panel{
-      background: linear-gradient(180deg, #ffffff 0%, #e6edf7 100%);
-      border: 1px solid rgba(11,78,162,0.30);
-      border-radius: 22px;
-      box-shadow:
-        0 16px 36px rgba(0,0,0,.14),
-        inset 0 2px 0 rgba(255,255,255,.9);
-      padding: 34px;
-    }
-
-    .intro h2{
-      margin:0;
-      font-size: 28px;
-      font-weight: 900;
-      color: var(--blue);
-    }
-
-    .intro p{
-      margin: 10px 0 0;
-      font-size: 17px;
-      line-height: 1.45;
-      opacity: .9;
-      max-width: 920px;
-    }
-
-    /* ===== BOUTONS ===== */
-    .buttons{
-      margin-top: 30px;
-      display:grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 22px;
-      max-width: 1120px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .btn{
-      text-decoration:none;
-      display:flex;
       justify-content:center;
-      align-items:center;
-      padding: 26px 18px;
-      border-radius: 18px;
-      background: linear-gradient(180deg, var(--blue2), var(--blue));
-      color:#fff;
-      font-size: 22px;
-      font-weight: 900;
-      letter-spacing:.3px;
-      box-shadow: 0 12px 22px rgba(11,78,162,.25);
-      transition: transform .18s ease, filter .18s ease;
-      text-align:center;
+      padding: 48px 18px 28px;
     }
 
+    .card{
+      width:min(1120px, 100%);
+      background: var(--card);
+      border: 1px solid var(--cardBorder);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 42px 44px 36px;
+    }
+
+    h1{
+      margin:0 0 10px;
+      font-size: clamp(28px, 3.2vw, 44px);
+      letter-spacing:-.02em;
+      color:#0b4ea2;
+    }
+
+    .subtitle{
+      margin:0 0 28px;
+      color: var(--muted);
+      line-height:1.5;
+      font-size: 16.5px;
+      max-width: 980px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    /* Boutons premium */
+    .btn{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-decoration:none;
+      padding: 22px 18px;
+      border-radius: 18px;
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing:.01em;
+      border: 1px solid rgba(0,0,0,.08);
+      box-shadow: var(--shadowSoft);
+      transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+      position:relative;
+      overflow:hidden;
+      user-select:none;
+      min-height: 78px;
+    }
+    .btn:focus{
+      outline: 3px solid rgba(11,78,162,.25);
+      outline-offset: 3px;
+    }
     .btn:hover{
       transform: translateY(-3px);
-      filter: brightness(1.05);
+      box-shadow: 0 20px 44px rgba(0,0,0,.18);
+      filter: saturate(1.05);
+    }
+    .btn:active{
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(0,0,0,.16);
     }
 
-    /* ===== COULEURS DES MISSIONS ===== */
-    .btn.formation { background: #5E7CE2; }
-    .btn.arbitres  { background: #C0392B; }
-    .btn.benevoles { background: #27AE60; }
-    .btn.comite    { background: #6C3483; }
-    .btn.divers    { background: #E67E22; }
+    /* Petit reflet */
+    .btn::before{
+      content:"";
+      position:absolute;
+      inset:-60% -20% auto -20%;
+      height:140%;
+      background: linear-gradient(110deg, rgba(255,255,255,.55), rgba(255,255,255,0));
+      transform: rotate(8deg);
+      opacity:.55;
+      pointer-events:none;
+    }
+
+    /* Variantes */
+    .bene{ background: linear-gradient(135deg, var(--bene1), var(--bene2)); color: var(--beneText); }
+    .arb { background: linear-gradient(135deg, var(--arb1),  var(--arb2));  color: var(--arbText); }
+    .com { background: linear-gradient(135deg, var(--com1),  var(--com2));  color: var(--comText); }
+    .for { background: linear-gradient(135deg, var(--for1),  var(--for2));  color: var(--forText); }
+    .divers{
+      background: linear-gradient(135deg, var(--div1), var(--div2));
+      color: var(--divText);
+      max-width: 320px;
+    }
+
+    .row2{
+      margin-top: 18px;
+      display:flex;
+      gap:18px;
+      align-items:center;
+      justify-content:flex-start;
+      flex-wrap:wrap;
+    }
 
     .hint{
-      margin-top: 18px;
-      text-align:center;
-      font-size: 14px;
-      opacity: .70;
+      margin-top: 14px;
+      color: rgba(20,35,55,.65);
+      font-size: 13.5px;
     }
 
     footer{
+      margin-top: 20px;
+      color: rgba(11,27,43,.55);
+      font-size: 14px;
       text-align:center;
-      padding: 26px 10px 32px;
-      font-size: 23px;
-      opacity: .65;
     }
 
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 700px){
-      header{
-        padding: 18px 16px;
-      }
-
-      .header-inner{
-        flex-direction: column;
-        gap: 14px;
-      }
-
-      .logo{
-        height: 92px;
-      }
-
-      .header-title h1{
-        font-size: 22px;
-      }
-
-      .header-title .sub{
-        font-size: 16px;
-      }
-
-      .spacer-top{
-        height: 40px;
-      }
-
-      .panel{
-        padding: 22px;
-      }
-
-      .btn{
-        font-size: 20px;
-        padding: 22px 16px;
-      }
+    /* Responsive */
+    @media (max-width: 980px){
+      .card{ padding: 34px 26px 26px; }
+      .grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .divers{ max-width: none; flex:1; }
+    }
+    @media (max-width: 520px){
+      .grid{ grid-template-columns: 1fr; }
+      .btn{ font-size: 18px; }
+      .row2{ justify-content:stretch; }
     }
   </style>
 </head>
 
 <body>
-  <div class="page-bg"></div>
-  <div class="page-overlay"></div>
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
 
-  <header>
-    <div class="header-inner">
-      <img class="logo" src="Unknown.png" alt="Logo Ligue de Tir Languedoc-Roussillon">
-      <div class="header-title">
-        <h1>LIGUE DE TIR LANGUEDOC-ROUSSILLON</h1>
-        <div class="sub">Gestion des missions – Génération PDF &amp; envoi EmailJS</div>
-      </div>
-      <img class="logo" src="748px-FFTir_Logo.svg.png" alt="Logo FFTir">
-    </div>
-  </header>
+  <main class="wrap">
+    <section class="card" role="region" aria-label="Choix du formulaire de mission">
+      <h1>Choisissez votre formulaire</h1>
 
-  <main>
-    <div class="spacer-top"></div>
+      <p class="subtitle">
+        Sélectionnez le profil correspondant à votre mission.
+        Le formulaire génère un PDF qui se télécharge automatiquement sur votre ordinateur
+        et déclenche l’envoi d’un courriel d’information à la ligue.
+        Envoyez ensuite votre PDF et les justificatifs demandés.
+      </p>
 
-    <div class="panel">
-      <div class="intro">
-        <h2>Choisissez votre formulaire</h2>
-        <p>
-          Sélectionnez le profil correspondant à votre mission.
-          Le formulaire génère un PDF qui se télécharge automatiquement sur votre ordinateur
-          et déclenche l’envoi d'un courriel d'information à la ligue.
-          Envoyez votre PDF et les justificatifs en suivant.
-        </p>
+      <div class="grid" aria-label="Boutons de choix">
+        <!-- ⚠️ Mets ici tes vrais noms de fichiers si différents -->
+        <a class="btn bene" href="mission-benevoles.html">Bénévoles</a>
+        <a class="btn arb"  href="mission-arbitres-repas.html">Arbitres</a>
+        <a class="btn com"  href="Mission-comite.html">Comité Directeur</a>
+        <a class="btn for"  href="formation.html">Formation</a>
       </div>
 
-      <div class="buttons">
-        <a class="btn benevoles" href="mission-benevoles.html">Bénévoles</a>
-        <a class="btn arbitres"  href="mission-arbitres-repas.html">Arbitres</a>
-        <a class="btn comite"    href="Mission-comite.html">Comité Directeur</a>
-        <a class="btn formation" href="formation.html">Formation</a>
-        <a class="btn divers"    href="divers.html">Divers</a>
+      <div class="row2">
+        <a class="btn divers" href="divers.html">Divers</a>
       </div>
 
       <div class="hint">
-        <!-- (optionnel) Tu peux mettre ici une phrase d’aide si tu veux -->
+        Astuce : si tu veux des couleurs encore plus “ligue / institution”, je peux te faire une variante plus sobre (moins de dégradé, plus “papier officiel”).
       </div>
-    </div>
+    </section>
+
+    <footer>
+      © Ligue de Tir Languedoc-Roussillon — Fédération Française de Tir
+    </footer>
   </main>
-
-  <footer>
-    © Ligue de Tir Languedoc-Roussillon — Fédération Française de Tir
-  </footer>
-
 </body>
 </html>
