@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎯 Résultats en Direct - Tir Sportif</title>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body{
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: white;
+      overflow-x: hidden;
+    }
+
+    .container{
+      padding: 30px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header{
+      text-align: center;
+      margin-bottom: 30px;
+      animation: fadeIn 1s;
+    }
+
+    .header h1{
+      font-size: 4em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+      color: #fff;
+    }
+
+    .header .competition-name{
+      font-size: 2em;
+      color: #ffd700;
+      text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+      margin-bottom: 10px;
+    }
+
+    .header .date{
+      font-size: 1.3em;
+      color: #ddd;
+    }
+
+    .header .live-indicator{
+      display: inline-block;
+      padding: 10px 25px;
+      background: rgba(255, 0, 0, 0.8);
+      border-radius: 25px;
+      margin-top: 15px;
+      font-weight: bold;
+      animation: pulse 2s infinite;
+    }
+
+    .view-selector{
+      text-align: center;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+
+    .view-tabs{
+      display: inline-flex;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50px;
+      padding: 5px;
+      gap: 5px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .view-tab{
+      padding: 10px 20px;
+      border: none;
+      background: transparent;
+      color: white;
+      cursor: pointer;
+      border-radius: 50px;
+      font-size: 1em;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+
+    .view-tab.active{
+      background: rgba(255,255,255,0.3);
+      font-weight: bold;
+    }
+
+    .view-tab:hover{ background: rgba(255,255,255,0.2); }
+
+    .ranking-container{
+      background: rgba(255,255,255,0.95);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      animation: slideIn 0.5s;
+      min-height: 600px;
+    }
+
+    /* Zone scrollable pour le tableau (mode TV) */
+    .table-scroll{
+      max-height: 420px;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      padding-right: 8px;
+    }
+    .table-scroll::-webkit-scrollbar{ width: 10px; }
+    .table-scroll::-webkit-scrollbar-thumb{ background: rgba(30,60,114,0.35); border-radius: 10px; }
+    .table-scroll::-webkit-scrollbar-track{ background: rgba(30,60,114,0.08); border-radius: 10px; }
+
+    .ranking-title{
+      font-size: 2.5em;
+      color: #1e3c72;
+      text-align: center;
+      margin-bottom: 30px;
+      border-bottom: 3px solid #ffd700;
+      padding-bottom: 15px;
+    }
+
+    .rankings-table{
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 10px;
+    }
+
+    .rankings-table thead th{
+      background: #1e3c72;
+      color: white;
+      padding: 15px;
+      text-align: left;
+      font-size: 1.2em;
+    }
+
+    .rankings-table thead th:first-child{
+      border-radius: 10px 0 0 10px;
+      text-align: center;
+      width: 80px;
+    }
+
+    .rankings-table thead th:last-child{
+      border-radius: 0 10px 10px 0;
+      text-align: center;
+      width: 150px;
+    }
+
+    .rankings-table tbody tr{
+      background: rgba(30, 60, 114, 0.05);
+      transition: all 0.3s;
+      animation: fadeInRow 0.5s;
+    }
+
+    .rankings-table tbody tr:hover{
+      background: rgba(30, 60, 114, 0.1);
+      transform: scale(1.02);
+    }
+
+    .rankings-table tbody td{
+      padding: 20px 15px;
+      color: #333;
+      font-size: 1.1em;
+    }
+
+    .rankings-table tbody td:first-child{
+      border-radius: 10px 0 0 10px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.5em;
+      color: #1e3c72;
+    }
+
+    .rankings-table tbody td:last-child{
+      border-radius: 0 10px 10px 0;
+      text-align: center;
+    }
+
+    .rank-1 td:first-child { color: #ffd700; }
+    .rank-2 td:first-child { color: #c0c0c0; }
+    .rank-3 td:first-child { color: #cd7f32; }
+
+    .shooter-name{
+      font-weight: bold;
+      font-size: 1.3em;
+      color: #1e3c72;
+    }
+
+    .shooter-club{
+      color: #666;
+      font-size: 0.9em;
+      margin-top: 3px;
+    }
+
+    .category-badge{
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 15px;
+      font-size: 0.85em;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+
+    /* Couleurs pour les catégories jeunes */
+    .category-Poussin-Garçon { background: #ffeaa7; color: #d63031; }
+    .category-Poussin-Fille { background: #ffccf9; color: #e84393; }
+    .category-Benjamin-Garçon { background: #a29bfe; color: #6c5ce7; }
+    .category-Benjamin-Fille { background: #fd79a8; color: #d63031; }
+    .category-Minime-Garçon { background: #74b9ff; color: #0984e3; }
+    .category-Minime-Fille { background: #fab1a0; color: #e17055; }
+    .category-Cadet-Garçon { background: #55efc4; color: #00b894; }
+    .category-Cadet-Fille { background: #fdcb6e; color: #e17055; }
+    .category-Junior-Garçon { background: #81ecec; color: #00b894; }
+    .category-Junior-Fille { background: #ffeaa7; color: #fdcb6e; }
+
+    /* Couleurs pour les catégories adultes */
+    .category-Senior { background: #74b9ff; color: #0984e3; }
+    .category-Dame { background: #fd79a8; color: #d63031; }
+    .category-Senior-2 { background: #a29bfe; color: #6c5ce7; }
+    .category-Senior-3 { background: #dfe6e9; color: #2d3436; }
+    .category-Dame-2 { background: #fab1a0; color: #e17055; }
+    .category-Dame-3 { background: #ffccf9; color: #e84393; }
+
+    .score-display{
+      font-size: 2em;
+      font-weight: bold;
+      color: #1e3c72;
+    }
+
+    .score-max{
+      font-size: 1.2em;
+      color: #999;
+    }
+
+    .empty-state{
+      text-align: center;
+      padding: 80px 20px;
+      color: #999;
+    }
+
+    .empty-state svg{
+      width: 150px;
+      height: 150px;
+      margin-bottom: 20px;
+      opacity: 0.3;
+    }
+
+    .empty-state h2{
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+
+    .footer{
+      text-align: center;
+      margin-top: 30px;
+      color: rgba(255,255,255,0.7);
+      font-size: 0.9em;
+    }
+
+    .auto-rotate-indicator{
+      text-align: center;
+      margin-top: 20px;
+      color: rgba(255,255,255,0.8);
+      font-size: 0.9em;
+    }
+
+    @keyframes fadeIn{
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideIn{
+      from { opacity: 0; transform: translateX(-50px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fadeInRow{
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes pulse{
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    @media (max-width: 768px){
+      .header h1 { font-size: 2.5em; }
+      .header .competition-name { font-size: 1.5em; }
+      .ranking-title { font-size: 1.8em; }
+      .view-tabs { flex-wrap: wrap; }
+      .view-tab { font-size: 0.85em; padding: 8px 15px; }
+      .rankings-table { font-size: 0.9em; }
+    }
+
+    /* Mode TV : on masque les onglets de catégories */
+    .view-selector{ display:none !important; }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎯 Résultats en Direct</h1>
+      <div class="competition-name" id="competitionName">Chargement...</div>
+      <div class="date" id="competitionDate"></div>
+      <div class="live-indicator">🔴 EN DIRECT</div>
+    </div>
+
+    <!-- (Onglets cachés en mode TV, laissés en place si tu veux les réactiver plus tard) -->
+    <div class="view-selector">
+      <div class="view-tabs" id="viewTabs">
+        <button class="view-tab active" onclick="changeView('general')">Général</button>
+        <button class="view-tab" onclick="changeView('Poussin Garçon')">Poussin G</button>
+        <button class="view-tab" onclick="changeView('Poussin Fille')">Poussin F</button>
+        <button class="view-tab" onclick="changeView('Benjamin Garçon')">Benjamin G</button>
+        <button class="view-tab" onclick="changeView('Benjamin Fille')">Benjamin F</button>
+        <button class="view-tab" onclick="changeView('Minime Garçon')">Minime G</button>
+        <button class="view-tab" onclick="changeView('Minime Fille')">Minime F</button>
+        <button class="view-tab" onclick="changeView('Cadet Garçon')">Cadet G</button>
+        <button class="view-tab" onclick="changeView('Cadet Fille')">Cadet F</button>
+        <button class="view-tab" onclick="changeView('Junior Garçon')">Junior G</button>
+        <button class="view-tab" onclick="changeView('Junior Fille')">Junior F</button>
+        <button class="view-tab" onclick="changeView('Senior')">Senior</button>
+        <button class="view-tab" onclick="changeView('Dame')">Dame</button>
+        <button class="view-tab" onclick="changeView('Senior 2')">Senior 2</button>
+        <button class="view-tab" onclick="changeView('Senior 3')">Senior 3</button>
+        <button class="view-tab" onclick="changeView('Dame 2')">Dame 2</button>
+        <button class="view-tab" onclick="changeView('Dame 3')">Dame 3</button>
+      </div>
+    </div>
+
+    <div class="ranking-container" id="rankingContainer"></div>
+    <div class="auto-rotate-indicator" id="autoRotateIndicator"></div>
+
+    <div class="footer">
+      Mise à jour automatique en temps réel • Dernière mise à jour : <span id="lastUpdate">-</span>
+    </div>
+  </div>
+
+  <script>
+    // ⚠️ CONFIGURATION FIREBASE
+    const firebaseConfig = {
+      apiKey: "AIzaSyAvfMRtRrhh_e-27xHlwIx9c5DIdUQm6HM",
+      authDomain: "resultats-tir-ligue-lr.firebaseapp.com",
+      databaseURL: "https://resultats-tir-ligue-lr-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "resultats-tir-ligue-lr",
+      storageBucket: "resultats-tir-ligue-lr.firebasestorage.app",
+      messagingSenderId: "468808300974",
+      appId: "1:468808300974:web:563a14cc4477c10b28303f"
+    };
+
+    // Firebase
+    let database;
+    let shootersRef;
+    let configRef;
+
+    // Données
+    let allShooters = [];
+    let competitionConfig = {};
+
+    // Vue courante
+    // { mode:'disc_general', discipline:'...' } | { mode:'combo', discipline:'...', category:'...' } | { mode:'category', category:'...' }
+    let currentView = { mode:'disc_general', discipline:'' };
+
+    // Mode TV : rotation auto Discipline -> Catégorie + défilement
+    let autoRotateEnabled = true;
+    const perViewSeconds = 12;        // ✅ demandé : 12s
+    const scrollPaddingSeconds = 2;   // pause haut/bas
+    let rotateTimer = null;
+    let scrollTimer = null;
+    let rotateViews = [];
+    let currentRotateIndex = 0;
+
+    function normalizeKey(s){ return (s || '').toString().trim(); }
+
+   function buildRotateViews() {
+  const map = new Map(); // discipline -> Set(categories)
+
+  allShooters.forEach(s => {
+    const d = normalizeKey(s.discipline);
+    const c = normalizeKey(s.category);
+    if (!d) return;
+    if (!map.has(d)) map.set(d, new Set());
+    if (c) map.get(d).add(c);
+  });
+
+  const disciplines = Array.from(map.keys()).sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));
+  const views = [];
+
+  disciplines.forEach(d => {
+    const cats = Array.from(map.get(d) || []).sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));
+
+    if (!cats.length) {
+      views.push({ mode:'disc_only', discipline:d });   // discipline sans catégories
+    } else {
+      cats.forEach(c => views.push({ mode:'combo', discipline:d, category:c }));
+    }
+  });
+
+  if (!views.length) views.push({ mode:'disc_only', discipline:'Résultats' });
+  return views;
+}
+
+
+   function viewLabel(view){
+  if (view.mode === 'combo') return `${view.discipline} • ${view.category}`;
+  if (view.mode === 'disc_only') return `${view.discipline}`;
+  if (view.mode === 'category') return `Classement ${view.category}`;
+  return 'Classement';
+}
+
+
+    function setActiveTab(view){
+      // Onglets cachés en mode TV, on laisse la logique au cas où
+      document.querySelectorAll('.view-tab').forEach(tab => tab.classList.remove('active'));
+      const tabs = Array.from(document.querySelectorAll('.view-tab'));
+
+      // si "general" (onglet) -> on considère "disc_general"
+      if (view.mode === 'disc_general') {
+        const t = tabs.find(x => x.textContent.trim() === 'Général');
+        if (t) t.classList.add('active');
+        return;
+      }
+
+      if (view.mode === 'category') {
+        const t = tabs.find(x => (x.getAttribute('onclick') || '').includes(view.category));
+        if (t) t.classList.add('active');
+        return;
+      }
+    }
+
+    // Connexion Firebase
+    try{
+      firebase.initializeApp(firebaseConfig);
+      database = firebase.database();
+      shootersRef = database.ref('ISSF10/shooters');
+      configRef = database.ref('ISSF10/config');
+
+      // Config compétition
+      configRef.on('value', (snapshot) => {
+        competitionConfig = snapshot.val() || {};
+        document.getElementById('competitionName').textContent = competitionConfig.name || 'Compétition de Tir';
+
+        if (competitionConfig.date) {
+          const date = new Date(competitionConfig.date);
+          document.getElementById('competitionDate').textContent = date.toLocaleDateString('fr-FR', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+          });
+        } else {
+          document.getElementById('competitionDate').textContent = '';
+        }
+      });
+
+      // Données tireurs
+      shootersRef.on('value', (snapshot) => {
+        const shootersData = snapshot.val();
+        if (shootersData) {
+          allShooters = Object.entries(shootersData)
+            .map(([id, data]) => ({ id, ...data }))
+            .sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0));
+        } else {
+          allShooters = [];
+        }
+
+        rotateViews = buildRotateViews();
+        if (currentRotateIndex >= rotateViews.length) currentRotateIndex = 0;
+
+        // Si currentView est vide, on prend la première vue rotation (donc discipline)
+        if (!currentView || !currentView.mode || (currentView.mode === 'disc_general' && !normalizeKey(currentView.discipline))) {
+          currentView = rotateViews[0] || { mode:'disc_general', discipline:'Résultats' };
+        }
+
+        displayRanking(currentView);
+        updateLastUpdate();
+
+        if (autoRotateEnabled) startAutoRotate();
+      });
+
+
+    } catch (error) {
+      console.error('Erreur Firebase:', error);
+      document.getElementById('rankingContainer').innerHTML = `
+        <div class="empty-state">
+          <h2>❌ Erreur de connexion</h2>
+          <p>Impossible de se connecter à Firebase</p>
+          <p style="font-size: 0.9em; margin-top: 10px;">Vérifiez la configuration dans le code source</p>
+        </div>
+      `;
+    }
+
+    // Clic onglets (si réactivés un jour)
+    function changeView(view){
+      if (view === 'general') {
+        // jamais de scratch global : on va sur la première discipline
+        const firstDisc = normalizeKey(allShooters[0]?.discipline) || 'Résultats';
+        currentView = { mode:'disc_general', discipline:firstDisc };
+      } else {
+        currentView = { mode:'category', category:view };
+      }
+
+      setActiveTab(currentView);
+      stopAutoRotate();
+      displayRanking(currentView);
+
+      setTimeout(() => {
+        if (autoRotateEnabled) startAutoRotate();
+      }, 30000);
+    }
+
+    function stopAutoScroll(){
+      if (scrollTimer) { clearInterval(scrollTimer); scrollTimer = null; }
+    }
+
+    function startAutoScroll(){
+      stopAutoScroll();
+
+      const scroller = document.getElementById('tableScroll');
+      if (!scroller) return;
+
+      scroller.scrollTop = 0;
+
+      const startDelay = scrollPaddingSeconds * 0;
+      const endPause = scrollPaddingSeconds * 1000;
+
+      let startAt = Date.now() + startDelay;
+
+      scrollTimer = setInterval(() => {
+        if (!autoRotateEnabled) return;
+
+        const now = Date.now();
+        if (now < startAt) return;
+
+        const maxScroll = scroller.scrollHeight - scroller.clientHeight;
+        if (maxScroll <= 0) return;
+
+        const travelMs = Math.max(1000, (perViewSeconds * 1000) - (2 * scrollPaddingSeconds * 1000));
+        const pxPerTick = maxScroll / (travelMs / 30);
+
+        scroller.scrollTop = Math.min(maxScroll, scroller.scrollTop + pxPerTick);
+
+        if (scroller.scrollTop >= maxScroll - 2) {
+          stopAutoScroll();
+          setTimeout(() => {
+            if (autoRotateEnabled) goNextView();
+          }, endPause);
+        }
+      }, 30);
+    }
+
+    function goNextView(){
+      if (!rotateViews.length) return;
+
+      currentRotateIndex = (currentRotateIndex + 1) % rotateViews.length;
+      currentView = rotateViews[currentRotateIndex];
+
+      setActiveTab(currentView);
+      displayRanking(currentView);
+      updateRotateIndicator();
+    }
+
+    function startAutoRotate(){
+      stopAutoRotate();
+
+      if (!rotateViews.length) rotateViews = [{ mode:'disc_general', discipline:'Résultats' }];
+      if (!currentView || !currentView.mode) currentView = rotateViews[0];
+
+      displayRanking(currentView);
+      updateRotateIndicator();
+
+      rotateTimer = setInterval(() => {
+        if (!autoRotateEnabled) return;
+        const scroller = document.getElementById('tableScroll');
+        if (scroller && scroller.scrollHeight > scroller.clientHeight) return; // laisse le scroll gérer
+        goNextView();
+      }, perViewSeconds * 1000);
+
+      startAutoScroll();
+    }
+
+    function stopAutoRotate(){
+      if (rotateTimer) { clearInterval(rotateTimer); rotateTimer = null; }
+      stopAutoScroll();
+      document.getElementById('autoRotateIndicator').textContent = '';
+    }
+
+    function updateRotateIndicator(){
+      if (!autoRotateEnabled) return;
+      const next = rotateViews[(currentRotateIndex + 1) % (rotateViews.length || 1)] || { mode:'disc_general', discipline:'Résultats' };
+      document.getElementById('autoRotateIndicator').textContent =
+        `↻ Mode TV • Défilement automatique • Prochaine vue : ${viewLabel(next)} (≈ ${perViewSeconds}s)`;
+    }
+
+    function displayRanking(view){
+      const container = document.getElementById('rankingContainer');
+
+      if (!allShooters.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+            </svg>
+            <h2>Aucun résultat pour le moment</h2>
+            <p>Les résultats s'afficheront dès qu'ils seront saisis</p>
+          </div>
+        `;
+        return;
+      }
+
+      // si disc_general mais discipline vide => première discipline dispo
+      if (view.mode === 'disc_general' && !normalizeKey(view.discipline)) {
+        const firstDisc = normalizeKey(allShooters[0]?.discipline) || 'Résultats';
+        view = { mode:'disc_general', discipline:firstDisc };
+      }
+
+      let filteredShooters = allShooters;
+let title = '';
+
+if (view.mode === 'combo') {
+  filteredShooters = allShooters.filter(s =>
+    normalizeKey(s.discipline) === normalizeKey(view.discipline) &&
+    normalizeKey(s.category) === normalizeKey(view.category)
+  );
+  title = `${view.discipline} • ${view.category}`;
+
+} else if (view.mode === 'disc_only') {
+  filteredShooters = allShooters.filter(s =>
+    normalizeKey(s.discipline) === normalizeKey(view.discipline)
+  );
+  title = `${view.discipline}`;
+
+} else if (view.mode === 'category') {
+  filteredShooters = allShooters.filter(s =>
+    normalizeKey(s.category) === normalizeKey(view.category)
+  );
+  title = `Classement ${view.category}`;
+}
+
+
+      if (!filteredShooters.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <h2>Aucun tireur pour : ${title}</h2>
+          </div>
+        `;
+        return;
+      }
+
+      // ✅ PAS de podium / médailles
+      let html = `<div class="ranking-title">${title}</div>`;
+
+      html += `
+        <div class="table-scroll" id="tableScroll">
+          <table class="rankings-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Tireur</th>
+                <th>Club</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      filteredShooters.forEach((shooter, index) => {
+        const rankClass = index < 3 ? `rank-${index + 1}` : '';
+        const categoryClass = 'category-' + (shooter.category || '').replace(/ /g, '-');
+
+        // ✅ logique badges correcte sans "general" scratch
+       const showCategoryBadge = (view.mode === 'disc_only');  // si discipline seule, montrer la catégorie
+const showDisciplineBadge = (view.mode === 'category'); // si vue catégorie, montrer la discipline
+
+
+        html += `
+          <tr class="${rankClass}">
+            <td>${index + 1}</td>
+            <td>
+              <div class="shooter-name">${shooter.firstName || ''} ${shooter.lastName || ''}</div>
+              ${showCategoryBadge ? `<span class="${categoryClass} category-badge">${shooter.category || ''}</span>` : ''}
+              ${showDisciplineBadge ? `<span class="category-badge" style="background:#e0e7ff;color:#3730a3;">${shooter.discipline || ''}</span>` : ''}
+            </td>
+            <td><div class="shooter-club">${shooter.club || ''}</div></td>
+            <td>
+              <span class="score-display">${shooter.score}</span>
+              <span class="score-max">/ ${shooter.maxScore}</span>
+            </td>
+          </tr>
+        `;
+      });
+
+      html += `
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      container.innerHTML = html;
+
+      if (autoRotateEnabled) startAutoScroll();
+    }
+
+    function updateLastUpdate(){
+      const now = new Date();
+      document.getElementById('lastUpdate').textContent = now.toLocaleTimeString('fr-FR');
+    }
+
+    // Plein écran au double-clic
+    document.addEventListener('dblclick', () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    });
+
+    // Espace = pause / reprise rotation
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        autoRotateEnabled = !autoRotateEnabled;
+        if (autoRotateEnabled) {
+          startAutoRotate();
+        } else {
+          stopAutoRotate();
+          document.getElementById('autoRotateIndicator').textContent =
+            '⏸ Mode TV en pause (appuyez sur Espace pour reprendre)';
+        }
+      }
+    });
+  </script>
+</body>
+</html>
