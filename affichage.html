@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎯 Résultats en Direct - Tir Sportif</title>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    :root{ --sbw: 12px; }
+
+    body{
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+      color: white;
+      overflow-x: hidden;
+    }
+
+    .container{
+      padding: 0;
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    /* 🎨 HEADER AVEC IMAGE DE FOND */
+    .header{
+      position: relative;
+      text-align: center;
+      padding: 35px 30px;
+      background-image: url('resultats.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      animation: fadeIn 1s;
+      overflow: hidden;
+    }
+
+    /* Overlay sombre pour améliorer la lisibilité du texte */
+    .header::before{
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(30, 60, 114, 0.85) 0%, rgba(42, 82, 152, 0.75) 100%);
+      z-index: 1;
+    }
+
+    /* Effet de brillance qui se déplace */
+    .header::after{
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        45deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.1) 50%,
+        transparent 70%
+      );
+      animation: shine 8s infinite;
+      z-index: 2;
+    }
+
+    @keyframes shine{
+      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+
+    .header > *{
+      position: relative;
+      z-index: 3;
+    }
+
+    .header h1{
+      font-size: 3.2em;
+      margin-bottom: 10px;
+      text-shadow: 
+        0 0 20px rgba(255, 215, 0, 0.6),
+        0 0 40px rgba(255, 215, 0, 0.4),
+        3px 3px 15px rgba(0,0,0,0.8);
+      color: #fff;
+      font-weight: 900;
+      letter-spacing: 2px;
+      background: linear-gradient(to right, #fff, #ffd700, #fff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: textGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes textGlow{
+      0%, 100% { 
+        text-shadow: 
+          0 0 20px rgba(255, 215, 0, 0.6),
+          0 0 40px rgba(255, 215, 0, 0.4),
+          3px 3px 15px rgba(0,0,0,0.8);
+      }
+      50% { 
+        text-shadow: 
+          0 0 30px rgba(255, 215, 0, 0.8),
+          0 0 60px rgba(255, 215, 0, 0.6),
+          3px 3px 15px rgba(0,0,0,0.8);
+      }
+    }
+
+    .header .competition-name{
+      font-size: 1.6em;
+      color: #ffd700;
+      text-shadow: 
+        2px 2px 8px rgba(0,0,0,0.8),
+        0 0 15px rgba(255, 215, 0, 0.5);
+      margin-bottom: 8px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .header .date{
+      font-size: 1.1em;
+      color: #e8f4f8;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
+      font-weight: 500;
+    }
+
+    .header .live-indicator{
+      display: inline-block;
+      padding: 8px 20px;
+      background: linear-gradient(135deg, rgba(220, 20, 60, 0.95), rgba(255, 0, 0, 0.95));
+      border-radius: 30px;
+      margin-top: 12px;
+      font-weight: bold;
+      font-size: 0.95em;
+      animation: pulse 2s infinite;
+      box-shadow: 
+        0 0 20px rgba(255, 0, 0, 0.6),
+        0 0 40px rgba(255, 0, 0, 0.4),
+        0 5px 15px rgba(0,0,0,0.5);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .view-selector{
+      text-align: center;
+      margin-bottom: 20px;
+      overflow-x: auto;
+      padding: 20px 0;
+    }
+
+    .view-tabs{
+      display: inline-flex;
+      background: rgba(255,255,255,0.15);
+      border-radius: 50px;
+      padding: 8px;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+    }
+
+    .view-tab{
+      padding: 12px 24px;
+      border: none;
+      background: transparent;
+      color: white;
+      cursor: pointer;
+      border-radius: 50px;
+      font-size: 1em;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+
+    .view-tab.active{
+      background: linear-gradient(135deg, rgba(255,255,255,0.4), rgba(255,255,255,0.2));
+      font-weight: bold;
+      box-shadow: 0 4px 15px rgba(255,255,255,0.3);
+    }
+
+    .view-tab:hover{ 
+      background: rgba(255,255,255,0.25);
+      transform: translateY(-2px);
+    }
+
+    .ranking-container{
+      background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(248,250,252,0.98));
+      border-radius: 30px;
+      padding: 40px;
+      box-shadow: 
+        0 25px 80px rgba(0,0,0,0.4),
+        0 0 0 1px rgba(255,255,255,0.1);
+      animation: slideIn 0.5s;
+      min-height: 600px;
+      margin: 30px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    /* Zone scrollable pour le tableau (mode TV) */
+    .table-scroll{
+      max-height: 520px;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      padding-right: 12px;
+    
+      scrollbar-gutter: stable;
+    }
+    .table-scroll::-webkit-scrollbar{ width: 12px; }
+    .table-scroll::-webkit-scrollbar-thumb{ 
+      background: linear-gradient(135deg, rgba(30,60,114,0.5), rgba(30,60,114,0.7));
+      border-radius: 10px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+    .table-scroll::-webkit-scrollbar-thumb:hover{
+      background: linear-gradient(135deg, rgba(30,60,114,0.7), rgba(30,60,114,0.9));
+      background-clip: padding-box;
+    }
+    .table-scroll::-webkit-scrollbar-track{ 
+      background: rgba(30,60,114,0.08);
+      border-radius: 10px;
+      margin: 5px;
+    }
+
+    
+
+    /* ✅ Bandeau fixe (aligné) séparé du scroll */
+    .table-head{ padding-right: 0; }
+    .table-head .rankings-table{ margin-bottom: 0; width: calc(100% - var(--sbw)); }
+    .table-scroll{ padding-right: 0; }
+    .table-scroll .rankings-table{ border-spacing: 0 12px; margin-top: 0; width: calc(100% - var(--sbw)); }
+
+.ranking-title{
+      font-size: 3em;
+      color: #1e3c72;
+      text-align: center;
+      margin-bottom: 35px;
+      padding-bottom: 20px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      position: relative;
+    }
+
+    .ranking-title::after{
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, #ffd700, transparent);
+      border-radius: 2px;
+    }
+
+    .rankings-table{
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 12px;
+      table-layout: fixed;
+      margin: 0;
+      padding: 0;
+    }
+
+    .rankings-table thead tr{
+    }
+
+    .rankings-table thead th{
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: white;
+      padding: 18px;
+      text-align: left;
+      font-size: 1.3em;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      box-shadow: 0 4px 15px rgba(30,60,114,0.3);
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    .rankings-table thead th:first-child{
+      text-align: center;
+      border-radius: 15px 0 0 15px;
+    }
+
+    .rankings-table thead th:nth-child(2){
+      text-align: left;
+    }
+
+    .rankings-table thead th:nth-child(3){
+      text-align: center;
+    }
+
+    .rankings-table thead th:nth-child(4){
+      text-align: center;
+      border-radius: 0 15px 15px 0;
+    }
+
+    /* ✅ Verrouillage des largeurs de colonnes (thead + tbody) */
+    .rankings-table th:nth-child(1),
+    .rankings-table td:nth-child(1){ width:100px; }
+    .rankings-table th:nth-child(2),
+    .rankings-table td:nth-child(2){ width:45%; }
+    .rankings-table th:nth-child(3),
+    .rankings-table td:nth-child(3){ width:25%; }
+    .rankings-table th:nth-child(4),
+    .rankings-table td:nth-child(4){ width:200px; }
+
+
+    .rankings-table tbody tr{
+      background: linear-gradient(135deg, rgba(30, 60, 114, 0.04), rgba(30, 60, 114, 0.08));
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: fadeInRow 0.6s;
+      position: relative;
+    }
+
+    .rankings-table tbody tr::before{
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,215,0,0.1), transparent);
+      opacity: 0;
+      transition: opacity 0.4s;
+      border-radius: 15px;
+      pointer-events: none;
+    }
+
+    .rankings-table tbody tr:hover{
+      background: linear-gradient(135deg, rgba(30, 60, 114, 0.12), rgba(30, 60, 114, 0.18));
+      transform: translateX(8px) scale(1.01);
+      box-shadow: 
+        0 8px 25px rgba(30,60,114,0.2),
+        0 0 0 2px rgba(255,215,0,0.3);
+    }
+
+    .rankings-table tbody tr:hover::before{
+      opacity: 1;
+    }
+
+    .rankings-table tbody td{
+      padding: 18px;
+      color: #333;
+      font-size: 1.15em;
+      vertical-align: middle;
+    }
+
+    .rankings-table tbody td:first-child{
+      text-align: center;
+      font-weight: 900;
+      font-size: 1.8em;
+      color: #1e3c72;
+      border-radius: 15px 0 0 15px;
+    }
+
+    .rankings-table tbody td:nth-child(2){
+      text-align: left;
+    }
+
+    .rankings-table tbody td:nth-child(3){
+      text-align: center;
+    }
+
+    .rankings-table tbody td:nth-child(4){
+      text-align: center;
+      border-radius: 0 15px 15px 0;
+    }
+
+    /* 🏆 PODIUM EFFECTS - Top 3 */
+    .rank-1 td:first-child { 
+      color: #ffd700;
+      text-shadow: 
+        0 0 15px rgba(255,215,0,0.6),
+        2px 2px 4px rgba(0,0,0,0.3);
+      font-size: 2.2em !important;
+    }
+    .rank-1{
+      background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,215,0,0.08)) !important;
+      box-shadow: 
+        0 0 0 2px rgba(255,215,0,0.4),
+        0 8px 25px rgba(255,215,0,0.2) !important;
+    }
+
+    .rank-2 td:first-child { 
+      color: #c0c0c0;
+      text-shadow: 
+        0 0 12px rgba(192,192,192,0.6),
+        2px 2px 4px rgba(0,0,0,0.3);
+      font-size: 2em !important;
+    }
+    .rank-2{
+      background: linear-gradient(135deg, rgba(192,192,192,0.12), rgba(192,192,192,0.06)) !important;
+      box-shadow: 
+        0 0 0 2px rgba(192,192,192,0.3),
+        0 6px 20px rgba(192,192,192,0.15) !important;
+    }
+
+    .rank-3 td:first-child { 
+      color: #cd7f32;
+      text-shadow: 
+        0 0 10px rgba(205,127,50,0.6),
+        2px 2px 4px rgba(0,0,0,0.3);
+      font-size: 1.9em !important;
+    }
+    .rank-3{
+      background: linear-gradient(135deg, rgba(205,127,50,0.1), rgba(205,127,50,0.05)) !important;
+      box-shadow: 
+        0 0 0 2px rgba(205,127,50,0.3),
+        0 6px 20px rgba(205,127,50,0.12) !important;
+    }
+
+    .shooter-name{
+      font-weight: 700;
+      font-size: 1.35em;
+      color: #1e3c72;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .shooter-club{
+      color: #666;
+      font-size: 0.95em;
+      margin-top: 5px;
+      font-weight: 500;
+    }
+
+    .category-badge{
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.88em;
+      font-weight: 700;
+      margin-left: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    /* Couleurs pour les catégories jeunes */
+    .category-Poussin-Garçon { background: linear-gradient(135deg, #ffeaa7, #fdcb6e); color: #d63031; }
+    .category-Poussin-Fille { background: linear-gradient(135deg, #ffccf9, #fd79a8); color: #e84393; }
+    .category-Benjamin-Garçon { background: linear-gradient(135deg, #a29bfe, #6c5ce7); color: #fff; }
+    .category-Benjamin-Fille { background: linear-gradient(135deg, #fd79a8, #e84393); color: #fff; }
+    .category-Minime-Garçon { background: linear-gradient(135deg, #74b9ff, #0984e3); color: #fff; }
+    .category-Minime-Fille { background: linear-gradient(135deg, #fab1a0, #e17055); color: #fff; }
+    .category-Cadet-Garçon { background: linear-gradient(135deg, #55efc4, #00b894); color: #fff; }
+    .category-Cadet-Fille { background: linear-gradient(135deg, #fdcb6e, #f39c12); color: #fff; }
+    .category-Junior-Garçon { background: linear-gradient(135deg, #81ecec, #00cec9); color: #fff; }
+    .category-Junior-Fille { background: linear-gradient(135deg, #ffeaa7, #fdcb6e); color: #d63031; }
+
+    /* Couleurs pour les catégories adultes */
+    .category-Senior { background: linear-gradient(135deg, #74b9ff, #0984e3); color: #fff; }
+    .category-Dame { background: linear-gradient(135deg, #fd79a8, #d63031); color: #fff; }
+    .category-Senior-2 { background: linear-gradient(135deg, #a29bfe, #6c5ce7); color: #fff; }
+    .category-Senior-3 { background: linear-gradient(135deg, #dfe6e9, #b2bec3); color: #2d3436; }
+    .category-Dame-2 { background: linear-gradient(135deg, #fab1a0, #e17055); color: #fff; }
+    .category-Dame-3 { background: linear-gradient(135deg, #ffccf9, #e84393); color: #fff; }
+
+    .score-display{
+      font-size: 2.2em;
+      font-weight: 900;
+      color: #1e3c72;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .score-max{
+      font-size: 1.3em;
+      color: #999;
+      font-weight: 600;
+    }
+
+    .empty-state{
+      text-align: center;
+      padding: 100px 20px;
+      color: #999;
+    }
+
+    .empty-state svg{
+      width: 180px;
+      height: 180px;
+      margin-bottom: 25px;
+      opacity: 0.25;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+    }
+
+    .empty-state h2{
+      font-size: 2.2em;
+      margin-bottom: 12px;
+      color: #666;
+    }
+
+    .footer{
+      text-align: center;
+      margin-top: 40px;
+      padding: 25px;
+      color: rgba(255,255,255,0.85);
+      font-size: 1em;
+      background: rgba(0,0,0,0.2);
+      border-radius: 15px;
+      margin-left: 30px;
+      margin-right: 30px;
+      margin-bottom: 30px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    .auto-rotate-indicator{
+      text-align: center;
+      margin-top: 25px;
+      color: rgba(255,255,255,0.9);
+      font-size: 1em;
+      font-weight: 600;
+      padding: 12px 20px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 25px;
+      margin-left: 30px;
+      margin-right: 30px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    @keyframes fadeIn{
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideIn{
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInRow{
+      from { opacity: 0; transform: translateX(-30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes pulse{
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.85; transform: scale(1.05); }
+    }
+
+    @media (max-width: 768px){
+      .header h1 { font-size: 2.8em; }
+      .header .competition-name { font-size: 1.6em; }
+      .ranking-title { font-size: 2em; }
+      .view-tabs { flex-wrap: wrap; }
+      .view-tab { font-size: 0.9em; padding: 10px 18px; }
+      .rankings-table { font-size: 0.95em; }
+      .ranking-container { padding: 25px; margin: 20px; }
+    }
+
+    /* Mode TV : on masque les onglets de catégories */
+    .view-selector{ display:none !important; }
+  
+    /* =========================
+       ✅ ALIGNEMENT PAR GRILLE (anti-décalage)
+       Le bandeau et les lignes utilisent EXACTEMENT la même grille.
+       ========================= */
+    .ranking-grid{
+      --col-rank: 100px;
+      --col-club: 260px;
+      --col-score: 220px;
+      --sbw: 0px; /* scrollbar width (JS) */
+    }
+
+    .grid-head{
+      display: grid;
+      grid-template-columns: var(--col-rank) 1fr var(--col-club) var(--col-score);
+      gap: 0;
+      align-items: center;
+      width: calc(100% - var(--sbw));
+      margin-bottom: 12px;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(30,60,114,0.25);
+    }
+
+    .grid-head .hcell{
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: #fff;
+      padding: 18px 18px;
+      font-size: 1.3em;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      display:flex;
+      align-items:center;
+    }
+    .grid-head .hcell:nth-child(1){ justify-content:center; }
+    .grid-head .hcell:nth-child(2){ justify-content:flex-start; padding-left: 26px; }
+    .grid-head .hcell:nth-child(3){ justify-content:center; }
+    .grid-head .hcell:nth-child(4){ justify-content:center; }
+
+    .grid-scroll{
+      max-height: 520px;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      scrollbar-gutter: stable;
+    }
+
+    .grid-scroll::-webkit-scrollbar{ width: 12px; }
+    .grid-scroll::-webkit-scrollbar-thumb{
+      background: linear-gradient(135deg, rgba(30,60,114,0.5), rgba(30,60,114,0.7));
+      border-radius: 10px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+    .grid-scroll::-webkit-scrollbar-thumb:hover{
+      background: linear-gradient(135deg, rgba(30,60,114,0.7), rgba(30,60,114,0.9));
+      background-clip: padding-box;
+    }
+    .grid-scroll::-webkit-scrollbar-track{
+      background: rgba(30,60,114,0.08);
+      border-radius: 10px;
+      margin: 5px;
+    }
+
+    .grid-row{
+      display: grid;
+      grid-template-columns: var(--col-rank) 1fr var(--col-club) var(--col-score);
+      align-items: center;
+      gap: 0;
+      margin: 0 0 12px 0;
+      padding: 0;
+      background: linear-gradient(135deg, rgba(30, 60, 114, 0.04), rgba(30, 60, 114, 0.08));
+      border-radius: 15px;
+      position: relative;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: fadeInRow 0.6s;
+    }
+
+    .grid-row::before{
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,215,0,0.1), transparent);
+      opacity: 0;
+      transition: opacity 0.4s;
+      border-radius: 15px;
+      pointer-events: none;
+    }
+
+    .grid-row:hover{
+      background: linear-gradient(135deg, rgba(30, 60, 114, 0.12), rgba(30, 60, 114, 0.18));
+      transform: translateX(8px) scale(1.01);
+      box-shadow:
+        0 8px 25px rgba(30,60,114,0.2),
+        0 0 0 2px rgba(255,215,0,0.3);
+    }
+    .grid-row:hover::before{ opacity: 1; }
+
+    .cell{
+      padding: 18px;
+      color: #333;
+      font-size: 1.15em;
+      z-index: 1;
+    }
+
+    .cell.rank{
+      text-align: center;
+      font-weight: 900;
+      font-size: 1.8em;
+      color: #1e3c72;
+    }
+
+    .cell.tireur{ padding-left: 26px; }
+
+    .cell.club{ text-align: center; }
+
+    .cell.score{ text-align: center; }
+
+    /* ✅ Podium look sur le rang (juste la cellule rank) */
+    .grid-row.rank-1 .cell.rank{
+      color: #ffd700;
+      text-shadow: 0 0 15px rgba(255,215,0,0.6), 2px 2px 4px rgba(0,0,0,0.3);
+      font-size: 2.2em;
+    }
+    .grid-row.rank-2 .cell.rank{
+      color: #c0c0c0;
+      text-shadow: 0 0 12px rgba(192,192,192,0.6), 2px 2px 4px rgba(0,0,0,0.3);
+      font-size: 2em;
+    }
+    .grid-row.rank-3 .cell.rank{
+      color: #cd7f32;
+      text-shadow: 0 0 10px rgba(205,127,50,0.6), 2px 2px 4px rgba(0,0,0,0.3);
+      font-size: 1.9em;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎯 Résultats</h1>
+      <div class="competition-name" id="competitionName">Chargement...</div>
+      <div class="date" id="competitionDate"></div>
+      <div class="live-indicator">🔴 EN DIRECT</div>
+    </div>
+
+    <!-- (Onglets cachés en mode TV, laissés en place si tu veux les réactiver plus tard) -->
+    <div class="view-selector">
+      <div class="view-tabs" id="viewTabs">
+        <button class="view-tab active" onclick="changeView('general')">Général</button>
+        <button class="view-tab" onclick="changeView('Poussin Garçon')">Poussin G</button>
+        <button class="view-tab" onclick="changeView('Poussin Fille')">Poussin F</button>
+        <button class="view-tab" onclick="changeView('Benjamin Garçon')">Benjamin G</button>
+        <button class="view-tab" onclick="changeView('Benjamin Fille')">Benjamin F</button>
+        <button class="view-tab" onclick="changeView('Minime Garçon')">Minime G</button>
+        <button class="view-tab" onclick="changeView('Minime Fille')">Minime F</button>
+        <button class="view-tab" onclick="changeView('Cadet Garçon')">Cadet G</button>
+        <button class="view-tab" onclick="changeView('Cadet Fille')">Cadet F</button>
+        <button class="view-tab" onclick="changeView('Junior Garçon')">Junior G</button>
+        <button class="view-tab" onclick="changeView('Junior Fille')">Junior F</button>
+        <button class="view-tab" onclick="changeView('Senior')">Senior</button>
+        <button class="view-tab" onclick="changeView('Dame')">Dame</button>
+        <button class="view-tab" onclick="changeView('Senior 2')">Senior 2</button>
+        <button class="view-tab" onclick="changeView('Senior 3')">Senior 3</button>
+        <button class="view-tab" onclick="changeView('Dame 2')">Dame 2</button>
+        <button class="view-tab" onclick="changeView('Dame 3')">Dame 3</button>
+      </div>
+    </div>
+
+    <div class="ranking-container" id="rankingContainer"></div>
+    <div class="auto-rotate-indicator" id="autoRotateIndicator"></div>
+
+    <div class="footer">
+      Mise à jour automatique en temps réel • Dernière mise à jour : <span id="lastUpdate">-</span>
+    </div>
+  </div>
+
+  <script>
+    // ✅ DÉTECTION DE LA COMPÉTITION VIA URL
+    function getCompetitionId() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('comp') || 'ISSF10'; // Par défaut : ISSF10
+    }
+
+    const COMPETITION_ID = getCompetitionId();
+    
+    console.log('🎯 Compétition active :', COMPETITION_ID);
+
+    // ✅ Mesure largeur scrollbar pour aligner bandeau / lignes (Mac/Windows)
+    function setScrollbarWidthVar(){
+      const outer = document.createElement('div');
+      outer.style.visibility = 'hidden';
+      outer.style.overflow = 'scroll';
+      outer.style.msOverflowStyle = 'scrollbar';
+      outer.style.width = '100px';
+      outer.style.position = 'absolute';
+      outer.style.top = '-9999px';
+      document.body.appendChild(outer);
+
+      const inner = document.createElement('div');
+      inner.style.width = '100%';
+      outer.appendChild(inner);
+
+      const sbw = outer.offsetWidth - inner.offsetWidth;
+      document.documentElement.style.setProperty('--sbw', (sbw || 12) + 'px');
+      outer.remove();
+    }
+
+    // On applique dès que possible
+    document.addEventListener('DOMContentLoaded', setScrollbarWidthVar);
+    window.addEventListener('resize', setScrollbarWidthVar);
+
+    // ⚠️ CONFIGURATION FIREBASE
+    const firebaseConfig = {
+      apiKey: "AIzaSyAvfMRtRrhh_e-27xHlwIx9c5DIdUQm6HM",
+      authDomain: "resultats-tir-ligue-lr.firebaseapp.com",
+      databaseURL: "https://resultats-tir-ligue-lr-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "resultats-tir-ligue-lr",
+      storageBucket: "resultats-tir-ligue-lr.firebasestorage.app",
+      messagingSenderId: "468808300974",
+      appId: "1:468808300974:web:563a14cc4477c10b28303f"
+    };
+
+    // Firebase
+    let database;
+    let shootersRef;
+    let configRef;
+
+    // Données
+    let allShooters = [];
+    let competitionConfig = {};
+
+    // Vue courante
+    // { mode:'disc_general', discipline:'...' } | { mode:'combo', discipline:'...', category:'...' } | { mode:'category', category:'...' }
+    let currentView = { mode:'disc_general', discipline:'' };
+
+    // Mode TV : rotation auto Discipline -> Catégorie + défilement
+    let autoRotateEnabled = true;
+    const perViewSeconds = 12;        // ✅ demandé : 12s
+    const scrollPaddingSeconds = 2;   // pause haut/bas
+    let rotateTimer = null;
+    let scrollTimer = null;
+    let rotateViews = [];
+    let currentRotateIndex = 0;
+
+    function normalizeKey(s){ return (s || '').toString().trim(); }
+
+   function buildRotateViews() {
+  const map = new Map(); // discipline -> Set(categories)
+
+  allShooters.forEach(s => {
+    const d = normalizeKey(s.discipline);
+    const c = normalizeKey(s.category);
+    if (!d) return;
+    if (!map.has(d)) map.set(d, new Set());
+    if (c) map.get(d).add(c);
+  });
+
+  const disciplines = Array.from(map.keys()).sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));
+  const views = [];
+
+  disciplines.forEach(d => {
+    const cats = Array.from(map.get(d) || []).sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));
+
+    if (!cats.length) {
+      views.push({ mode:'disc_only', discipline:d });   // discipline sans catégories
+    } else {
+      cats.forEach(c => views.push({ mode:'combo', discipline:d, category:c }));
+    }
+  });
+
+  if (!views.length) views.push({ mode:'disc_only', discipline:'Résultats' });
+  return views;
+}
+
+
+   function viewLabel(view){
+  if (view.mode === 'combo') return `${view.discipline} • ${view.category}`;
+  if (view.mode === 'disc_only') return `${view.discipline}`;
+  if (view.mode === 'category') return `Classement ${view.category}`;
+  return 'Classement';
+}
+
+
+    function setActiveTab(view){
+      // Onglets cachés en mode TV, on laisse la logique au cas où
+      document.querySelectorAll('.view-tab').forEach(tab => tab.classList.remove('active'));
+      const tabs = Array.from(document.querySelectorAll('.view-tab'));
+
+      // si "general" (onglet) -> on considère "disc_general"
+      if (view.mode === 'disc_general') {
+        const t = tabs.find(x => x.textContent.trim() === 'Général');
+        if (t) t.classList.add('active');
+        return;
+      }
+
+      if (view.mode === 'category') {
+        const t = tabs.find(x => (x.getAttribute('onclick') || '').includes(view.category));
+        if (t) t.classList.add('active');
+        return;
+      }
+    }
+
+    // Connexion Firebase
+    try{
+      firebase.initializeApp(firebaseConfig);
+      database = firebase.database();
+      
+      // ✅ Chemins dynamiques basés sur COMPETITION_ID (ISSF10 ou COMP2)
+      shootersRef = database.ref(`${COMPETITION_ID}/shooters`);
+      configRef = database.ref(`${COMPETITION_ID}/config`);
+
+      // Config compétition
+      configRef.on('value', (snapshot) => {
+        competitionConfig = snapshot.val() || {};
+        document.getElementById('competitionName').textContent = competitionConfig.name || 'Compétition de Tir';
+
+        if (competitionConfig.date) {
+          const date = new Date(competitionConfig.date);
+          document.getElementById('competitionDate').textContent = date.toLocaleDateString('fr-FR', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+          });
+        } else {
+          document.getElementById('competitionDate').textContent = '';
+        }
+      });
+
+      // Données tireurs
+      shootersRef.on('value', (snapshot) => {
+        const shootersData = snapshot.val();
+        if (shootersData) {
+          allShooters = Object.entries(shootersData)
+            .map(([id, data]) => ({ id, ...data }))
+            .sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0));
+        } else {
+          allShooters = [];
+        }
+
+        rotateViews = buildRotateViews();
+        if (currentRotateIndex >= rotateViews.length) currentRotateIndex = 0;
+
+        // Si currentView est vide, on prend la première vue rotation (donc discipline)
+        if (!currentView || !currentView.mode || (currentView.mode === 'disc_general' && !normalizeKey(currentView.discipline))) {
+          currentView = rotateViews[0] || { mode:'disc_general', discipline:'Résultats' };
+        }
+
+        displayRanking(currentView);
+        updateLastUpdate();
+
+        if (autoRotateEnabled) startAutoRotate();
+      });
+
+
+    } catch (error) {
+      console.error('Erreur Firebase:', error);
+      document.getElementById('rankingContainer').innerHTML = `
+        <div class="empty-state">
+          <h2>❌ Erreur de connexion</h2>
+          <p>Impossible de se connecter à Firebase</p>
+          <p style="font-size: 0.9em; margin-top: 10px;">Vérifiez la configuration dans le code source</p>
+        </div>
+      `;
+    }
+
+    // Clic onglets (si réactivés un jour)
+    function changeView(view){
+      if (view === 'general') {
+        // jamais de scratch global : on va sur la première discipline
+        const firstDisc = normalizeKey(allShooters[0]?.discipline) || 'Résultats';
+        currentView = { mode:'disc_general', discipline:firstDisc };
+      } else {
+        currentView = { mode:'category', category:view };
+      }
+
+      setActiveTab(currentView);
+      stopAutoRotate();
+      displayRanking(currentView);
+
+      setTimeout(() => {
+        if (autoRotateEnabled) startAutoRotate();
+      }, 30000);
+    }
+
+    function stopAutoScroll(){
+      if (scrollTimer) { clearInterval(scrollTimer); scrollTimer = null; }
+    }
+
+    function startAutoScroll(){
+      stopAutoScroll();
+
+      const scroller = document.getElementById('tableScroll');
+      if (!scroller) return;
+
+      scroller.scrollTop = 0;
+
+      const startDelay = scrollPaddingSeconds * 0;
+      const endPause = scrollPaddingSeconds * 1000;
+
+      let startAt = Date.now() + startDelay;
+
+      scrollTimer = setInterval(() => {
+        if (!autoRotateEnabled) return;
+
+        const now = Date.now();
+        if (now < startAt) return;
+
+        const maxScroll = scroller.scrollHeight - scroller.clientHeight;
+        if (maxScroll <= 0) return;
+
+        const travelMs = Math.max(1000, (perViewSeconds * 1000) - (2 * scrollPaddingSeconds * 1000));
+        const pxPerTick = maxScroll / (travelMs / 30);
+
+        scroller.scrollTop = Math.min(maxScroll, scroller.scrollTop + pxPerTick);
+
+        if (scroller.scrollTop >= maxScroll - 2) {
+          stopAutoScroll();
+          setTimeout(() => {
+            if (autoRotateEnabled) goNextView();
+          }, endPause);
+        }
+      }, 30);
+    }
+
+    function goNextView(){
+      if (!rotateViews.length) return;
+
+      currentRotateIndex = (currentRotateIndex + 1) % rotateViews.length;
+      currentView = rotateViews[currentRotateIndex];
+
+      setActiveTab(currentView);
+      displayRanking(currentView);
+      updateRotateIndicator();
+    }
+
+    function startAutoRotate(){
+      stopAutoRotate();
+
+      if (!rotateViews.length) rotateViews = [{ mode:'disc_only', discipline:'Résultats' }];
+      if (!currentView || !currentView.mode) currentView = rotateViews[0];
+
+      displayRanking(currentView);
+      updateRotateIndicator();
+
+      rotateTimer = setInterval(() => {
+        if (!autoRotateEnabled) return;
+        const scroller = document.getElementById('tableScroll');
+        if (scroller && scroller.scrollHeight > scroller.clientHeight) return; // laisse le scroll gérer
+        goNextView();
+      }, perViewSeconds * 1000);
+
+      startAutoScroll();
+    }
+
+    function stopAutoRotate(){
+      if (rotateTimer) { clearInterval(rotateTimer); rotateTimer = null; }
+      stopAutoScroll();
+      document.getElementById('autoRotateIndicator').textContent = '';
+    }
+
+    function updateRotateIndicator(){
+      if (!autoRotateEnabled) return;
+      const next = rotateViews[(currentRotateIndex + 1) % (rotateViews.length || 1)] || { mode:'disc_general', discipline:'Résultats' };
+      document.getElementById('autoRotateIndicator').textContent =
+        `↻ Mode TV • Défilement automatique • Prochaine vue : ${viewLabel(next)} (≈ ${perViewSeconds}s)`;
+    }
+
+    function displayRanking(view){
+      const container = document.getElementById('rankingContainer');
+
+      if (!allShooters.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+            </svg>
+            <h2>Aucun résultat pour le moment</h2>
+            <p>Les résultats s'afficheront dès qu'ils seront saisis</p>
+          </div>
+        `;
+        return;
+      }
+
+      // si disc_general mais discipline vide => première discipline dispo
+      if (view.mode === 'disc_general' && !normalizeKey(view.discipline)) {
+        const firstDisc = normalizeKey(allShooters[0]?.discipline) || 'Résultats';
+        view = { mode:'disc_general', discipline:firstDisc };
+      }
+
+      let filteredShooters = allShooters;
+let title = '';
+
+if (view.mode === 'combo') {
+  filteredShooters = allShooters.filter(s =>
+    normalizeKey(s.discipline) === normalizeKey(view.discipline) &&
+    normalizeKey(s.category) === normalizeKey(view.category)
+  );
+  title = `${view.discipline} • ${view.category}`;
+
+} else if (view.mode === 'disc_only') {
+  filteredShooters = allShooters.filter(s =>
+    normalizeKey(s.discipline) === normalizeKey(view.discipline)
+  );
+  title = `${view.discipline}`;
+
+} else if (view.mode === 'category') {
+  filteredShooters = allShooters.filter(s =>
+    normalizeKey(s.category) === normalizeKey(view.category)
+  );
+  title = `Classement ${view.category}`;
+}
+
+
+      if (!filteredShooters.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <h2>Aucun tireur pour : ${title}</h2>
+          </div>
+        `;
+        return;
+      }
+
+      // ✅ PAS de podium / médailles
+      let html = `<div class="ranking-title">${title}</div>`;
+
+            html += `
+        <div class="ranking-grid" id="rankingGrid">
+          <div class="grid-head" id="gridHead">
+            <div class="hcell">#</div>
+            <div class="hcell">Tireur</div>
+            <div class="hcell">Club</div>
+            <div class="hcell">Score</div>
+          </div>
+
+          <div class="grid-scroll" id="tableScroll">
+      `;
+
+      filteredShooters.forEach((shooter, index) => {
+        const rankClass = index < 3 ? `rank-${index + 1}` : '';
+        const categoryClass = 'category-' + (shooter.category || '').replace(/ /g, '-');
+
+        // ✅ logique badges correcte sans "general" scratch
+       const showCategoryBadge = (view.mode === 'disc_only');  // si discipline seule, montrer la catégorie
+const showDisciplineBadge = (view.mode === 'category'); // si vue catégorie, montrer la discipline
+
+
+        html += `
+          <div class="grid-row ${rankClass}">
+            <div class="cell rank">${index + 1}</div>
+            <div class="cell tireur">
+              <div class="shooter-name">${shooter.firstName || ''} ${shooter.lastName || ''}</div>
+              ${showCategoryBadge ? `<span class="${categoryClass} category-badge">${shooter.category || ''}</span>` : ''}
+              ${showDisciplineBadge ? `<span class="category-badge" style="background:linear-gradient(135deg,#e0e7ff,#c7d2fe);color:#3730a3;">${shooter.discipline || ''}</span>` : ''}
+            </div>
+            <div class="cell club"><div class="shooter-club">${shooter.club || ''}</div></div>
+            <div class="cell score">
+              <span class="score-display">${shooter.score}</span>
+              <span class="score-max">/ ${shooter.maxScore}</span>
+            </div>
+          </div>
+        `;
+      });
+
+      html += `
+          </div>
+        </div>
+      `;container.innerHTML = html;
+
+
+      // ✅ Mesure largeur scrollbar pour aligner le bandeau (Windows/TV) et Mac (overlay)
+      const scroller = document.getElementById('tableScroll');
+      const grid = document.getElementById('rankingGrid');
+      if (scroller && grid){
+        const sbw = Math.max(0, scroller.offsetWidth - scroller.clientWidth);
+        grid.style.setProperty('--sbw', sbw + 'px');
+      }
+
+      if (autoRotateEnabled) startAutoScroll();
+    }
+
+    function updateLastUpdate(){
+      const now = new Date();
+      document.getElementById('lastUpdate').textContent = now.toLocaleTimeString('fr-FR');
+    }
+
+    // Plein écran au double-clic
+    document.addEventListener('dblclick', () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    });
+
+    // Espace = pause / reprise rotation
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        autoRotateEnabled = !autoRotateEnabled;
+        if (autoRotateEnabled) {
+          startAutoRotate();
+        } else {
+          stopAutoRotate();
+          document.getElementById('autoRotateIndicator').textContent =
+            '⏸ Mode TV en pause (appuyez sur Espace pour reprendre)';
+        }
+      }
+    });
+  </script>
+</body>
+</html>
