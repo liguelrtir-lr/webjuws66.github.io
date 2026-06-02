@@ -521,6 +521,24 @@
       emailLigue: 'webjuws66@gmail.com'
     };
 
+    // ====== TABLEUR CENTRAL (Google Sheets) ======
+    const SHEET_URL = "https://script.google.com/macros/s/AKfycbxcszK6K-dg3zUqM01BJkr8dvZ99cCKAUvpqhdZ9seWXi4fiXjeCd6LRi7wi6Cskqgr/exec";
+
+    function envoyerVersTableur(formData) {
+      try {
+        if (SHEET_URL && SHEET_URL.indexOf('http') === 0) {
+          fetch(SHEET_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(formData)
+          }).catch(err => console.warn('Envoi tableur \u00e9chou\u00e9:', err));
+        }
+      } catch (err) {
+        console.warn('Envoi tableur \u00e9chou\u00e9:', err);
+      }
+    }
+
     // ====== EmailJS init (sécurisé) ======
     function initEmailJS() {
       try {
@@ -733,6 +751,7 @@
       const totalValue = calculateTotal();
 
       const formData = {
+        formType: 'Formation',
         objet: document.getElementById('objet').value,
         lieu: document.getElementById('lieu').value,
         dateMission: document.getElementById('dateMission').value,
@@ -759,6 +778,9 @@
 
         // Téléchargement local
         doc.save('Ordre_Mission_' + formData.nom + '_' + formData.prenom + '.pdf');
+
+        // Enregistrement dans le tableur central (Google Sheets)
+        envoyerVersTableur(formData);
 
         // Email de notification (sans PJ)
         if (config.publicKey && config.serviceId && config.templateId) {
