@@ -408,7 +408,7 @@
           <div class="form-group">
             <label>Kilométrage total (en km) *</label>
             <input type="number" id="km" required placeholder="0" min="0" step="1" oninput="calculateTotal()">
-            <small style="color: #666; font-size: 12px;">Indemnité: 0,40 € / km</small>
+            <small style="color: #666; font-size: 12px;">Indemnité: 0,45 € / km</small>
           </div>
 
           <div class="form-group">
@@ -622,7 +622,7 @@
 
   const prep = document.getElementById("jourPreparation")?.checked ? 30 : 0;
 
-  const indemniteKm = km * 0.40;
+  const indemniteKm = km * 0.45;
   const indemniteCompetition = dayFri + daySat + daySun;
 
   const total = indemniteKm + indemniteCompetition + prep + hotel + restaurant + peages;
@@ -773,7 +773,7 @@ window.calculateTotal = calculateTotal;
       doc.setFont(undefined, 'normal');
 
       const rows = [
-        ['Kilométrage', (data.km || '0') + ' km × 0,40 €', (data.indemniteKm || '0.00') + ' €'],
+        ['Kilométrage', (data.km || '0') + ' km × 0,45 €', (data.indemniteKm || '0.00') + ' €'],
         ['Hôtel', '', (data.hotel || '0') + ' €'],
         ['Restaurant', '', (data.restaurant || '0') + ' €'],
         ['Péages', '', (data.peages || '0') + ' €'],
@@ -863,7 +863,7 @@ window.calculateTotal = calculateTotal;
         restaurant: document.getElementById('restaurant').value || '0',
         peages: document.getElementById('peages').value || '0',
         covoiturage: document.getElementById('covoiturage').checked ? 'Oui' : 'Non',
-        indemniteKm: ((parseFloat(document.getElementById('km').value) || 0) * 0.40).toFixed(2),
+        indemniteKm: ((parseFloat(document.getElementById('km').value) || 0) * 0.45).toFixed(2),
         total: (totalValue || 0).toFixed(2),
         faitA: document.getElementById('faitA').value,
         dateComplete: new Date().toLocaleDateString('fr-FR')
