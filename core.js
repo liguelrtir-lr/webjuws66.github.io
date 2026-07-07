@@ -24,6 +24,12 @@ const MissionApp = (function () {
 
   const ADMIN_PIN = "2409"; // à changer si besoin
 
+  // Numéro de version affiché en petit sous le titre de chaque formulaire.
+  // À incrémenter à chaque mise à jour envoyée à Gérard, pour savoir
+  // immédiatement quelle version est en ligne sans avoir à comparer les
+  // fichiers. Format libre, ex: "1.0", "1.1", "2026-07-08"...
+  const APP_VERSION = "1.0";
+
   let cfg = null;         // config injectée par la page (voir init())
   let missions = [];      // historique local (localStorage)
   let emailConfig = null; // config EmailJS (localStorage, modifiable en admin)
@@ -438,6 +444,18 @@ const MissionApp = (function () {
     }
   }
 
+  function displayVersion() {
+    const header = document.querySelector(".header");
+    if (!header || document.getElementById("appVersionTag")) return;
+    const tag = document.createElement("div");
+    tag.id = "appVersionTag";
+    tag.style.fontSize = "11px";
+    tag.style.color = "#aaa";
+    tag.style.marginTop = "10px";
+    tag.textContent = "Version " + APP_VERSION + " — " + (cfg.formType || "");
+    header.appendChild(tag);
+  }
+
   // ================================ INIT =====================================
 
   function init(userConfig) {
@@ -450,6 +468,7 @@ const MissionApp = (function () {
       updateAdminUI();
       initEmailJS();
       fillConfigForm();
+      displayVersion();
       cfg.calculateTotal();
       const form = document.getElementById("missionForm");
       if (form) form.addEventListener("submit", handleSubmit);
