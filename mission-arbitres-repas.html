@@ -340,7 +340,7 @@
       if (data.covoiturage === "Oui") {
         rows.push(["Covoiturage", "avec " + (data.covoiturageAvec || "-"), "-"]);
       }
-      y = h.fraisTable(doc, y, rows, data.total, [214, 96, 92]);
+      y = h.fraisTable(doc, y, rows, data.total, h.color);
       return y;
     }
 

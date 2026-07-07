@@ -205,7 +205,7 @@
       const rows = [
         ["Indemnité bénévoles", "30 € × " + (data.jours || "1") + " jour(s)", (data.total || "0.00") + " €"],
       ];
-      y = h.fraisTable(doc, y, rows, data.total, [58, 155, 122]);
+      y = h.fraisTable(doc, y, rows, data.total, h.color);
       return y;
     }
 
