@@ -327,8 +327,17 @@ const MissionApp = (function () {
       console.warn("Logo non ajouté:", e);
     }
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(22);
     doc.setFont(undefined, "bold");
+    // Le titre est centré à x=105. Le logo occupe la zone x=10 à x=32.
+    // On réduit la taille de police si besoin pour que le titre ne
+    // déborde jamais sur le logo, quelle que soit la longueur du texte.
+    const maxTitleWidth = 2 * (105 - 34); // = 142mm
+    let titleFontSize = 22;
+    doc.setFontSize(titleFontSize);
+    while (titleFontSize > 12 && doc.getTextWidth(cfg.pdfTitle) > maxTitleWidth) {
+      titleFontSize -= 1;
+      doc.setFontSize(titleFontSize);
+    }
     doc.text(cfg.pdfTitle, 105, 15, { align: "center" });
     doc.setFontSize(11);
     doc.setFont(undefined, "normal");
