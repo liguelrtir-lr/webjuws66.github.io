@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mission Comité Directeur - Ligue de Tir Languedoc Roussillon</title>
+  <title>Mission Encadrement / Stage Jeunes - Ligue de Tir Languedoc Roussillon</title>
   <link rel="stylesheet" href="core.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -13,7 +13,7 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>🎯 Ordre de Mission – Comité Directeur</h1>
+      <h1>🎯 Ordre de Mission – Encadrement / Stage Jeunes</h1>
       <div class="subtitle">Ligue de Tir Languedoc Roussillon</div>
     </div>
 
@@ -35,7 +35,7 @@
 
           <div class="form-group">
             <label>Objet de la mission *</label>
-            <input type="text" id="objet" required placeholder="Ex: Réunion comité directeur...">
+            <input type="text" id="objet" required placeholder="Ex: Stage jeunes, encadrement pôle entraînement...">
           </div>
 
           <div class="form-group">
@@ -90,7 +90,7 @@
               <input type="number" id="hotel" placeholder="0.00" min="0" step="0.01" value="0" oninput="calculateTotal()">
             </div>
             <div class="form-group">
-              <label>Restaurant (€)</label>
+              <label>Repas (€)</label>
               <input type="number" id="restaurant" placeholder="0.00" min="0" step="0.01" value="0" oninput="calculateTotal()">
             </div>
           </div>
@@ -98,6 +98,17 @@
           <div class="form-group">
             <label>Péages Autoroute (€)</label>
             <input type="number" id="peages" placeholder="0.00" min="0" step="0.01" value="0" oninput="calculateTotal()">
+          </div>
+
+          <div class="form-group">
+            <label>Autres frais (€)</label>
+            <input type="number" id="autres" placeholder="0.00" min="0" step="0.01" value="0" oninput="calculateTotal()">
+            <small style="color: #666; font-size: 12px;">Si un montant est indiqué, merci de préciser la nature ci-dessous</small>
+          </div>
+
+          <div class="form-group">
+            <label>Préciser la nature des autres frais</label>
+            <input type="text" id="autresDescription" placeholder="Ex: matériel pédagogique, photocopies...">
           </div>
 
           <div class="form-group">
@@ -204,9 +215,10 @@
       const hotel = parseFloat(document.getElementById("hotel")?.value) || 0;
       const restaurant = parseFloat(document.getElementById("restaurant")?.value) || 0;
       const peages = parseFloat(document.getElementById("peages")?.value) || 0;
+      const autres = parseFloat(document.getElementById("autres")?.value) || 0;
 
       const indemniteKm = km * 0.45;
-      const total = indemniteKm + hotel + restaurant + peages;
+      const total = indemniteKm + hotel + restaurant + peages + autres;
 
       const totalEl = document.getElementById("totalAmount");
       if (totalEl) totalEl.textContent = total.toFixed(2).replace(".", ",") + " €";
@@ -230,6 +242,8 @@
         hotel: document.getElementById("hotel").value,
         restaurant: document.getElementById("restaurant").value,
         peages: document.getElementById("peages").value,
+        autres: document.getElementById("autres").value,
+        autresDescription: document.getElementById("autresDescription").value,
         covoiturage: document.getElementById("covoiturage").checked ? "Oui" : "Non",
         covoiturageAvec: document.getElementById("covoiturage").checked
           ? document.getElementById("covoiturageAvec").value
@@ -266,9 +280,12 @@
       const rows = [
         ["Kilométrage", (data.km || "0") + " km × 0,45 €", (data.indemniteKm || "0.00") + " €"],
         ["Hôtel", "", (data.hotel || "0.00") + " €"],
-        ["Restaurant", "", (data.restaurant || "0.00") + " €"],
+        ["Repas", "", (data.restaurant || "0.00") + " €"],
         ["Péages autoroute", "", (data.peages || "0.00") + " €"],
       ];
+      if (parseFloat(data.autres) > 0) {
+        rows.push(["Autres frais", data.autresDescription || "-", (data.autres || "0.00") + " €"]);
+      }
       if (data.covoiturage === "Oui") {
         rows.push(["Covoiturage", "avec " + (data.covoiturageAvec || "-"), "-"]);
       }
@@ -277,11 +294,11 @@
     }
 
     MissionApp.init({
-      formType: "Comité Directeur",
-      storageKey: "comite",
-      pdfTitle: "ORDRE DE MISSION COMITÉ DIRECTEUR",
-      bannerColor: [108, 52, 131],
-      accentColor: [108, 52, 131],
+      formType: "Encadrement / Stage Jeunes",
+      storageKey: "encadrement-jeunes",
+      pdfTitle: "ORDRE DE MISSION ENCADREMENT / STAGE JEUNES",
+      bannerColor: [22, 160, 133],
+      accentColor: [22, 160, 133],
       calculateTotal,
       buildFormData,
       buildPdfBody,
