@@ -28,7 +28,7 @@ const MissionApp = (function () {
   // À incrémenter à chaque mise à jour envoyée à Gérard, pour savoir
   // immédiatement quelle version est en ligne sans avoir à comparer les
   // fichiers. Format libre, ex: "1.0", "1.1", "2026-07-08"...
-  const APP_VERSION = "1.0";
+  const APP_VERSION = "1.1"; // 1.1 (07/11/2026) : date de fin pour les missions sur plusieurs jours
 
   let cfg = null;         // config injectée par la page (voir init())
   let missions = [];      // historique local (localStorage)
@@ -396,6 +396,76 @@ const MissionApp = (function () {
     return doc;
   }
 
+  // ===================== MISSION SUR PLUSIEURS JOURS ========================
+  // Ajoute automatiquement un champ « Date de fin » sous « Date de la mission »
+  // dans tous les formulaires, sans toucher aux fichiers mission-xxx.html.
+
+  const frDate = (iso) => (iso ? iso.split("-").reverse().join("/") : "");
+
+  function nbJoursEntre(debut, fin) {
+    const d1 = new Date(debut + "T12:00:00"), d2 = new Date(fin + "T12:00:00");
+    return Math.round((d2 - d1) / 86400000) + 1;
+  }
+
+  function ajouterDateFin() {
+    const debut = document.getElementById("dateMission");
+    if (!debut || document.getElementById("dateFinMission")) return;
+    const groupe = debut.closest(".form-group") || debut.parentNode;
+    const lab = groupe.querySelector("label");
+    if (lab) lab.textContent = "Date de la mission (début) *";
+
+    const g = document.createElement("div");
+    g.className = "form-group";
+    g.innerHTML =
+      '<label for="dateFinMission">Date de fin <span style="font-weight:normal;color:#888">(uniquement si la mission dure plusieurs jours)</span></label>' +
+      '<input type="date" id="dateFinMission">' +
+      '<small id="dureeMission" style="display:block;color:#666;font-size:12px;margin-top:4px"></small>';
+    groupe.insertAdjacentElement("afterend", g);
+
+    const fin = document.getElementById("dateFinMission");
+    const info = document.getElementById("dureeMission");
+    const maj = () => {
+      fin.min = debut.value || "";
+      if (debut.value && fin.value && fin.value > debut.value) {
+        const n = nbJoursEntre(debut.value, fin.value);
+        info.textContent = "Mission du " + frDate(debut.value) + " au " + frDate(fin.value) + " : " + n + " jours.";
+        // Formulaire avec un nombre de jours (ex. bénévoles) : proposé automatiquement, modifiable ensuite
+        const jours = document.getElementById("jours");
+        if (jours && jours.tagName === "SELECT") {
+          const max = Math.max(...[...jours.options].map((o) => parseInt(o.value, 10) || 0));
+          jours.value = String(Math.min(n, max));
+          if (n > max) info.textContent += " (indemnité plafonnée à " + max + " jours)";
+          if (cfg && cfg.calculateTotal) cfg.calculateTotal();
+        }
+      } else if (debut.value && fin.value && fin.value < debut.value) {
+        info.textContent = "⚠️ La date de fin est avant la date de début.";
+      } else {
+        info.textContent = "";
+      }
+    };
+    debut.addEventListener("change", maj);
+    fin.addEventListener("change", maj);
+    const form = document.getElementById("missionForm");
+    if (form) form.addEventListener("reset", () => setTimeout(() => (info.textContent = ""), 0));
+  }
+
+  // Remplace la date unique par la période dans les données (PDF, tableur, email, historique)
+  function appliquerPeriode(formData) {
+    const debut = document.getElementById("dateMission");
+    const fin = document.getElementById("dateFinMission");
+    if (!debut || !fin || !fin.value || fin.value === debut.value) return true;
+    if (fin.value < debut.value) {
+      showMessage("errorMessage", "❌ La date de fin est avant la date de début de la mission.");
+      return false;
+    }
+    const n = nbJoursEntre(debut.value, fin.value);
+    formData.dateDebut = debut.value;
+    formData.dateFin = fin.value;
+    formData.nbJoursMission = n;
+    formData.dateMission = "du " + frDate(debut.value) + " au " + frDate(fin.value) + " (" + n + " jours)";
+    return true;
+  }
+
   // ============================ SOUMISSION ==================================
 
   function showMessage(id, message) {
@@ -411,6 +481,7 @@ const MissionApp = (function () {
 
     const total = cfg.calculateTotal();
     const formData = cfg.buildFormData(total);
+    if (!appliquerPeriode(formData)) return;
     formData.formType = cfg.formType;
     formData.dateComplete = new Date().toLocaleDateString("fr-FR");
 
@@ -469,6 +540,7 @@ const MissionApp = (function () {
       initEmailJS();
       fillConfigForm();
       displayVersion();
+      ajouterDateFin();
       cfg.calculateTotal();
       const form = document.getElementById("missionForm");
       if (form) form.addEventListener("submit", handleSubmit);
