@@ -520,9 +520,8 @@ const MissionApp = (function () {
     if (!header || document.getElementById("appVersionTag")) return;
     const tag = document.createElement("div");
     tag.id = "appVersionTag";
-    tag.style.fontSize = "11px";
-    tag.style.color = "#aaa";
-    tag.style.marginTop = "10px";
+    tag.style.cssText = "display:inline-block;margin-top:10px;padding:3px 12px;border-radius:12px;" +
+      "background:#EEF1FD;color:#4c5bd4;font-size:12.5px;font-weight:600;letter-spacing:.02em";
     tag.textContent = "Version " + APP_VERSION + " — " + (cfg.formType || "");
     header.appendChild(tag);
   }
